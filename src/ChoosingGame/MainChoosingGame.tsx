@@ -4,9 +4,15 @@ import { useInputController } from '../shared/useInputController'
 import { Sprite } from '../shared/Sprite'
 import { staticSprites, SPRITE_SIZE, type StaticSprite } from './gameConfig'
 import { PromptModal } from './PromptModal'
-import progressBarImg from '../assets/images/progressbar.png'
+import progressBar0 from '../assets/images/progressBar0.png'
+import progressBar1 from '../assets/images/progressBar1.png'
+import progressBar2 from '../assets/images/progressBar2.png'
+import progressBar3 from '../assets/images/progressBar3.png'
 import defaultLeftImg from '../assets/defaultleft.png'
 import defaultRightImg from '../assets/defaultright.png'
+
+// Progress bar images array (0 = empty, 3 = full)
+const progressBarImages = [progressBar0, progressBar1, progressBar2, progressBar3];
 
 // Store user answers
 export interface UserAnswers {
@@ -26,12 +32,12 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
   const [answers, setAnswers] = useState<UserAnswers>({})
   const keysPressed = useInputController()
 
-    // Game Loop
-    useEffect(() => {
-      if (activeMenu) return; // Pause game loop when menu is open
+  // Game Loop
+  useEffect(() => {
+    if (activeMenu) return; // Pause game loop when menu is open
 
-      let animationFrameId: number;
-      const speed = 5; // pixels per frame
+    let animationFrameId: number;
+    const speed = 5; // pixels per frame
 
     const checkCollision = (xp: number, yp: number) => {
       for (const sprite of staticSprites) {
@@ -46,33 +52,33 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
       }
     }
 
-      const gameLoop = () => {
-        setPosition(prev => {
-          let newX = prev.x;
-          let newY = prev.y;
+    const gameLoop = () => {
+      setPosition(prev => {
+        let newX = prev.x;
+        let newY = prev.y;
 
-          if (keysPressed.current.has('ArrowUp')) newY -= speed;
-          if (keysPressed.current.has('ArrowDown')) newY += speed;
-          if (keysPressed.current.has('ArrowLeft')) {
-            newX -= speed;
-            setDirection('left');
-          }
-          if (keysPressed.current.has('ArrowRight')) {
-            newX += speed;
-            setDirection('right');
-          }
+        if (keysPressed.current.has('ArrowUp')) newY -= speed;
+        if (keysPressed.current.has('ArrowDown')) newY += speed;
+        if (keysPressed.current.has('ArrowLeft')) {
+          newX -= speed;
+          setDirection('left');
+        }
+        if (keysPressed.current.has('ArrowRight')) {
+          newX += speed;
+          setDirection('right');
+        }
 
-          // Boundary Check
-          newX = Math.max(0, Math.min(newX, window.innerWidth - SPRITE_SIZE));
-          newY = Math.max(0, Math.min(newY, window.innerHeight - SPRITE_SIZE));
+        // Boundary Check
+        newX = Math.max(0, Math.min(newX, window.innerWidth - SPRITE_SIZE));
+        newY = Math.max(0, Math.min(newY, window.innerHeight - SPRITE_SIZE));
 
         checkCollision(newX, newY);
 
-          return { x: newX, y: newY };
-        });
+        return { x: newX, y: newY };
+      });
 
-        animationFrameId = requestAnimationFrame(gameLoop);
-      };
+      animationFrameId = requestAnimationFrame(gameLoop);
+    };
 
     animationFrameId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(animationFrameId);
@@ -99,16 +105,16 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
     handleClose(sprite)
   }
 
-    return (
-      <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden', backgroundColor: '#f0f0f0' }}>
-        {/* Player */}
-        <Sprite 
-          x={position.x} 
-          y={position.y} 
-          color="red" 
-          size={SPRITE_SIZE} 
-          image={direction === 'left' ? defaultLeftImg : defaultRightImg}
-        />
+  return (
+    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden', backgroundColor: '#f0f0f0' }}>
+      {/* Player */}
+      <Sprite
+        x={position.x}
+        y={position.y}
+        color="red"
+        size={SPRITE_SIZE}
+        image={direction === 'left' ? defaultLeftImg : defaultRightImg}
+      />
 
       {/* Static Sprites */}
       {staticSprites.map((sprite) => (
@@ -202,18 +208,18 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
         </div>
       )}
 
-      {/* Progress Bar */}
-      <img 
-        src={progressBarImg} 
-        alt="Progress Bar" 
+      {/* Progress Bar - Dynamic based on answers submitted */}
+      <img
+        src={progressBarImages[Math.min(Object.keys(answers).length, 3)]}
+        alt={`Progress: ${Object.keys(answers).length}/3`}
         style={{
           position: 'absolute',
-          bottom: '20px',
-          right: '20px',
-          width: '500px',
+          top: '20px',
+          left: '20px',
+          width: '200px',
           zIndex: 50,
           pointerEvents: 'none'
-        }} 
+        }}
       />
     </div>
   )
