@@ -50,8 +50,7 @@ export interface DictationButtonProps {
     /** Called whenever the transcript changes (final + interim text) */
     onTranscriptChange?: (transcript: string) => void;
     /** Called with only the finalized transcript */
-    onFinalTranscript?: (transcript: string) => void;
-    /** Called when dictation starts (mic activated) */
+    onFinalTranscript?: (transcript: string) => void;    /** Called when dictation starts (mic activated) */
     onDictationStart?: () => void;
     /** Called when dictation ends (mic deactivated) */
     onDictationEnd?: () => void;

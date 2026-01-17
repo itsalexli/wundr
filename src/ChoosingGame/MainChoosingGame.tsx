@@ -5,8 +5,8 @@ import { Sprite } from '../shared/Sprite'
 import { staticSprites, SPRITE_SIZE, type StaticSprite } from './gameConfig'
 import { PromptModal } from './PromptModal'
 import progressBarImg from '../assets/images/progressbar.png'
-import defaultLeftImg from '../assets/defaultleft.png'
-import defaultRightImg from '../assets/defaultright.png'
+import defaultLeftImg from '../assets/images/defaultleft.png'
+import defaultRightImg from '../assets/images/defaultright.png'
 
 // Store user answers
 export interface UserAnswers {
