@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import './App.css'
+import '../App.css'
 
 function App() {
   const [position, setPosition] = useState({ x: 0, y: 0 })
