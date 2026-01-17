@@ -10,6 +10,12 @@ export interface PromptModalProps {
     onClose: () => void;
     /** Optional placeholder text for the input */
     placeholder?: string;
+    /** Optional custom width for the modal */
+    width?: string;
+    /** Optional custom height for the modal */
+    height?: string;
+    /** Optional layout variant */
+    layout?: 'default' | 'split';
 }
 
 export function PromptModal({
@@ -17,6 +23,9 @@ export function PromptModal({
     onSubmit,
     onClose,
     placeholder = 'Type your answer or use the mic...',
+    width,
+    height,
+    layout = 'default',
 }: PromptModalProps) {
     const [answer, setAnswer] = useState('');
     const [answerBeforeDictation, setAnswerBeforeDictation] = useState('');
@@ -48,11 +57,16 @@ export function PromptModal({
         modal: {
             backgroundColor: 'white',
             borderRadius: '16px',
-            padding: '24px',
-            maxWidth: '500px',
-            width: '90%',
+            padding: layout === 'split' ? '0' : '24px',
+            maxWidth: width ? '90%' : '500px',
+            width: width || '90%',
+            height: height || 'auto',
+            maxHeight: height ? '90vh' : 'auto',
+            display: 'flex',
+            flexDirection: 'column',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
             position: 'relative',
+            overflow: 'hidden',
         },
         closeButton: {
             position: 'absolute',
@@ -68,13 +82,39 @@ export function PromptModal({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            zIndex: 10,
         },
+        // Split Layout Styles
+        splitContainer: {
+            display: 'flex',
+            flexDirection: 'row',
+            height: '100%',
+            width: '100%',
+        },
+        leftPane: {
+            width: '45%',
+            backgroundColor: 'black',
+            height: '100%',
+        },
+        rightPane: {
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end', // Align content to bottom
+            padding: '24px',
+            height: '100%',
+            boxSizing: 'border-box',
+        },
+        // Content Styles
         promptText: {
             fontSize: '18px',
             fontWeight: 600,
             marginBottom: '16px',
             color: '#333',
             paddingRight: '32px',
+        },
+        inputWrapper: {
+            // No margin needed as parent aligns to bottom
         },
         inputContainer: {
             display: 'flex',
@@ -110,18 +150,13 @@ export function PromptModal({
         },
     };
 
-    return (
-        <div style={styles.overlay} onClick={onClose}>
-            <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
-                {/* Close Button */}
-                <button style={styles.closeButton} onClick={onClose} title="Close">
-                    ✕
-                </button>
+    const renderContent = () => (
+        <>
+            {/* Prompt Text */}
+            <div style={styles.promptText}>{prompt}</div>
 
-                {/* Prompt Text */}
-                <div style={styles.promptText}>{prompt}</div>
-
-                {/* Input Area */}
+            {/* Input Wrapper */}
+            <div style={styles.inputWrapper}>
                 <div style={styles.inputContainer}>
                     <textarea
                         style={styles.textarea}
@@ -147,6 +182,28 @@ export function PromptModal({
                 <button style={styles.submitButton} onClick={handleSubmit}>
                     Submit
                 </button>
+            </div>
+        </>
+    );
+
+    return (
+        <div style={styles.overlay} onClick={onClose}>
+            <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+                {/* Close Button */}
+                <button style={styles.closeButton} onClick={onClose} title="Close">
+                    ✕
+                </button>
+
+                {layout === 'split' ? (
+                    <div style={styles.splitContainer}>
+                        <div style={styles.leftPane}></div>
+                        <div style={styles.rightPane}>
+                            {renderContent()}
+                        </div>
+                    </div>
+                ) : (
+                    renderContent()
+                )}
             </div>
         </div>
     );

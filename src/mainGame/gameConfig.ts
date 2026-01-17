@@ -1,4 +1,5 @@
 export const SPRITE_SIZE = 50;
+export const PLAYER_SIZE = 85;
 
 export interface StaticSprite {
   id: string;
