@@ -3,8 +3,14 @@ import '../App.css'
 import { useInputController } from '../shared/useInputController'
 import { Sprite } from '../shared/Sprite'
 import { staticSprites, SPRITE_SIZE } from './gameConfig'
+import type { UserAnswers } from '../ChoosingGame/MainChoosingGame'
 
-function MainGame() {
+interface MainGameProps {
+  userAnswers?: UserAnswers;
+  onBack?: () => void;
+}
+
+function MainGame({ userAnswers, onBack }: MainGameProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const keysPressed = useInputController()
@@ -57,13 +63,54 @@ function MainGame() {
 
     animationFrameId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(animationFrameId);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeMenu]); // Re-run effect when activeMenu changes (to start/stop loop)
 
   const activeSprite = staticSprites.find(s => s.id === activeMenu);
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden', backgroundColor: '#f0f0f0' }}>
+      {/* Back Button */}
+      {onBack && (
+        <button
+          onClick={onBack}
+          style={{
+            position: 'absolute',
+            top: '16px',
+            left: '16px',
+            padding: '10px 20px',
+            backgroundColor: '#333',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '14px',
+            cursor: 'pointer',
+            zIndex: 1000
+          }}
+        >
+          ← Back to Choices
+        </button>
+      )}
+
+      {/* Show user choices if available */}
+      {userAnswers && Object.keys(userAnswers).length > 0 && (
+        <div style={{
+          position: 'absolute',
+          top: '16px',
+          right: '16px',
+          backgroundColor: 'rgba(255,255,255,0.9)',
+          padding: '12px',
+          borderRadius: '8px',
+          fontSize: '12px',
+          zIndex: 1000
+        }}>
+          <strong>Your choices:</strong>
+          {userAnswers.character && <div>👤 {userAnswers.character}</div>}
+          {userAnswers.music && <div>🎵 {userAnswers.music}</div>}
+          {userAnswers.background && <div>🖼️ {userAnswers.background}</div>}
+        </div>
+      )}
+
       {/* Player */}
       <Sprite x={position.x} y={position.y} color="red" size={SPRITE_SIZE} />
 
@@ -103,15 +150,6 @@ function MainGame() {
             <button
               onClick={() => {
                 setActiveMenu(null)
-                // Teleport slightly away or ensure we don't get stuck in loop?
-                // Just moving 1px away from collision direction would be smart, but for now simple release.
-                // Actually, if we are overlapping, game loop immediately re-triggers collision on next frame.
-                // We should move the player back to previous valid position or push them out.
-                // Let's simple-fix: Reset position slightly away?
-                // Or just ignore collision for a split second?
-                // Safest for "ChoosingGame" is usually to just set position to 'safe' adjacent spot or rely on user moving away?
-                // Wait, if I close menu and I'm still overlapping, checking collision happens immediately and reopens menu.
-                // I will add a simple 'nudge' to the player position when closing menu to help them escape.
                 setPosition(prev => ({
                   x: prev.x < activeSprite.x ? prev.x - 10 : prev.x + 10,
                   y: prev.y < activeSprite.y ? prev.y - 10 : prev.y + 10
