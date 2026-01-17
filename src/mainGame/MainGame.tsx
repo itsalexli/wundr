@@ -4,7 +4,7 @@ import { useInputController } from '../shared/useInputController'
 import { Sprite } from '../shared/Sprite'
 import { staticSprites, SPRITE_SIZE } from './gameConfig'
 
-function App() {
+function MainGame() {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const keysPressed = useInputController()
@@ -45,7 +45,7 @@ function App() {
         newX = Math.max(0, Math.min(newX, window.innerWidth - SPRITE_SIZE));
         newY = Math.max(0, Math.min(newY, window.innerHeight - SPRITE_SIZE));
 
-        // Collision Check uses PREDICTED position to stop movement? 
+        // Collision Check uses PREDICTED position to stop movement?
         // Or reactive? Reactive means we overlap. Let's stick effectively to reactive trigger.
         checkCollision(newX, newY);
 
@@ -57,6 +57,7 @@ function App() {
 
     animationFrameId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(animationFrameId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeMenu]); // Re-run effect when activeMenu changes (to start/stop loop)
 
   const activeSprite = staticSprites.find(s => s.id === activeMenu);
@@ -65,7 +66,7 @@ function App() {
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden', backgroundColor: '#f0f0f0' }}>
       {/* Player */}
       <Sprite x={position.x} y={position.y} color="red" size={SPRITE_SIZE} />
-      
+
       {/* Static Sprites */}
       {staticSprites.map((sprite, i) => (
         <Sprite key={i} x={sprite.x} y={sprite.y} color={sprite.color} size={SPRITE_SIZE} />
@@ -99,16 +100,16 @@ function App() {
           }}>
             <h2>{activeSprite.title}</h2>
             <p>You found a sprite!</p>
-            <button 
+            <button
               onClick={() => {
                 setActiveMenu(null)
                 // Teleport slightly away or ensure we don't get stuck in loop?
                 // Just moving 1px away from collision direction would be smart, but for now simple release.
                 // Actually, if we are overlapping, game loop immediately re-triggers collision on next frame.
                 // We should move the player back to previous valid position or push them out.
-                // Let's simple-fix: Reset position slightly away? 
+                // Let's simple-fix: Reset position slightly away?
                 // Or just ignore collision for a split second?
-                // Safest for "ChoosingGame" is usually to just set position to 'safe' adjacent spot or rely on user moving away? 
+                // Safest for "ChoosingGame" is usually to just set position to 'safe' adjacent spot or rely on user moving away?
                 // Wait, if I close menu and I'm still overlapping, checking collision happens immediately and reopens menu.
                 // I will add a simple 'nudge' to the player position when closing menu to help them escape.
                 setPosition(prev => ({
@@ -135,6 +136,4 @@ function App() {
   )
 }
 
-export default App
-
-
+export default MainGame

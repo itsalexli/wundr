@@ -1,10 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import MainChoosingGame from './ChoosingGame/MainChoosingGame.tsx'
+import MainGame from './mainGame/MainGame.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <MainChoosingGame />
+    <MainGame />
   </StrictMode>,
 )
