@@ -24,21 +24,23 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ enemy, onClose }) =>
   
   const [playerHP, setPlayerHP] = useState(100);
   const [enemyHP, setEnemyHP] = useState(100);
+  
+  const [battleResult, setBattleResult] = useState<'win' | 'loss' | null>(null);
 
   // Check for Win/Loss
   useEffect(() => {
+    if (battleResult) return; // Already decided
+
     if (enemyHP <= 0) {
       setTimeout(() => {
-        alert("You Won!");
-        onClose();
-      }, 100);
+        setBattleResult('win');
+      }, 500); // Wait for animations
     } else if (playerHP <= 0) {
       setTimeout(() => {
-        alert("You Lost!");
-        onClose();
-      }, 100);
+        setBattleResult('loss');
+      }, 500); // Wait for animations
     }
-  }, [enemyHP, playerHP, onClose]);
+  }, [enemyHP, playerHP, battleResult]);
 
   const enemyRef = React.useRef<HTMLDivElement>(null);
 
@@ -70,11 +72,11 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ enemy, onClose }) =>
         }) 
         .filter(p => !p.stopped && p.x < window.innerWidth);
 
-      if (hitOccurred) {
-        setEnemyHP(prev => Math.max(0, prev - 10));
-        setIsEnemyHurt(true);
-        setTimeout(() => setIsEnemyHurt(false), 200);
-      }
+        if (hitOccurred) {
+          setEnemyHP(prev => Math.max(0, prev - 20));
+          setIsEnemyHurt(true);
+          setTimeout(() => setIsEnemyHurt(false), 200);
+        }
       
       setProjectiles(nextProjectiles);
     });
@@ -110,7 +112,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ enemy, onClose }) =>
       // Player got it wrong, player gets hurt after a short delay
       setTimeout(() => {
         setIsPlayerHurt(true);
-        setPlayerHP(prev => Math.max(0, prev - 10)); // Damage player
+        setPlayerHP(prev => Math.max(0, prev - 20)); // Damage player
         setTimeout(() => setIsPlayerHurt(false), 200);
       }, 300);
     }
@@ -172,21 +174,40 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ enemy, onClose }) =>
           alignItems: 'center',
           gap: '20px'
         }}>
-          {/* Player HP Bar */}
-          <div style={{
-            width: '150px',
-            height: '20px',
-            backgroundColor: '#555',
-            borderRadius: '10px',
-            overflow: 'hidden',
-            border: '2px solid white'
-          }}>
+          {/* Player HP Bar Container */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{
-              width: `${playerHP}%`,
-              height: '100%',
-              backgroundColor: '#4CAF50', // Green HP
-              transition: 'width 0.3s ease-out'
-            }} />
+              width: '150px',
+              height: '20px',
+              backgroundColor: '#555',
+              borderRadius: '10px',
+              overflow: 'hidden',
+              border: '2px solid white',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{
+                width: `${playerHP}%`,
+                height: '100%',
+                backgroundColor: '#4CAF50', // Green HP
+                transition: 'width 0.3s ease-out',
+                position: 'absolute',
+                left: 0,
+                top: 0
+              }} />
+              <span style={{
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: 'white',
+                textShadow: '1px 1px 2px black',
+                zIndex: 1,
+                position: 'relative'
+              }}>
+                {playerHP}/100
+              </span>
+            </div>
           </div>
 
           <div style={{ 
@@ -214,21 +235,40 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ enemy, onClose }) =>
           alignItems: 'center',
           gap: '20px'
         }}>
-          {/* Enemy HP Bar */}
-          <div style={{
-            width: '150px',
-            height: '20px',
-            backgroundColor: '#555',
-            borderRadius: '10px',
-            overflow: 'hidden',
-            border: '2px solid white'
-          }}>
+          {/* Enemy HP Bar Container */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{
-              width: `${enemyHP}%`,
-              height: '100%',
-              backgroundColor: '#4CAF50', // Green HP
-              transition: 'width 0.3s ease-out'
-            }} />
+              width: '150px',
+              height: '20px',
+              backgroundColor: '#555',
+              borderRadius: '10px',
+              overflow: 'hidden',
+              border: '2px solid white',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <div style={{
+                width: `${enemyHP}%`,
+                height: '100%',
+                backgroundColor: '#4CAF50', // Green HP
+                transition: 'width 0.3s ease-out',
+                position: 'absolute',
+                left: 0,
+                top: 0
+              }} />
+              <span style={{
+                fontSize: '14px',
+                fontWeight: 'bold',
+                color: 'white',
+                textShadow: '1px 1px 2px black',
+                zIndex: 1,
+                position: 'relative'
+              }}>
+                {enemyHP}/100
+              </span>
+            </div>
           </div>
 
           <div ref={enemyRef} style={{ 
@@ -294,6 +334,48 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ enemy, onClose }) =>
       >
         Run Away
       </button>
+
+      {/* Result Popup Overlay */}
+      {battleResult && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          zIndex: 200,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '40px',
+            borderRadius: '20px',
+            textAlign: 'center',
+            color: 'black'
+          }}>
+            <h1 style={{ fontSize: '48px', marginBottom: '20px' }}>
+              {battleResult === 'win' ? 'VICTORY!' : 'DEFEAT...'}
+            </h1>
+            <button
+              onClick={onClose}
+              style={{
+                padding: '15px 30px',
+                fontSize: '24px',
+                backgroundColor: battleResult === 'win' ? '#4CAF50' : '#ff4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                cursor: 'pointer'
+              }}
+            >
+              {battleResult === 'win' ? 'Continue' : 'Try Again'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

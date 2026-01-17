@@ -5,7 +5,12 @@ import { Sprite } from '../shared/Sprite'
 import { staticSprites, SPRITE_SIZE } from './gameConfig'
 import { BattleScreen } from './BattleScreen'
 
-function MainGame() {
+interface MainGameProps {
+  userAnswers: any;
+  onBack: () => void;
+}
+
+function MainGame({ userAnswers: _userAnswers, onBack }: MainGameProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const keysPressed = useInputController()
@@ -26,8 +31,6 @@ function MainGame() {
           yp + SPRITE_SIZE > sprite.y
         ) {
           setActiveMenu(sprite.id)
-          // Optional: Bounce back slightly to avoid immediate re-trigger on close?
-          // For now, simpler is fine, but we might want to ensure we don't get stuck.
         }
       }
     }
@@ -46,8 +49,6 @@ function MainGame() {
         newX = Math.max(0, Math.min(newX, window.innerWidth - SPRITE_SIZE));
         newY = Math.max(0, Math.min(newY, window.innerHeight - SPRITE_SIZE));
 
-        // Collision Check uses PREDICTED position to stop movement?
-        // Or reactive? Reactive means we overlap. Let's stick effectively to reactive trigger.
         checkCollision(newX, newY);
 
         return { x: newX, y: newY };
@@ -58,8 +59,8 @@ function MainGame() {
 
     animationFrameId = requestAnimationFrame(gameLoop);
     return () => cancelAnimationFrame(animationFrameId);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeMenu]); // Re-run effect when activeMenu changes (to start/stop loop)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeMenu]);
 
   const activeSprite = staticSprites.find(s => s.id === activeMenu);
 
@@ -87,6 +88,20 @@ function MainGame() {
           {staticSprites.map((sprite, i) => (
             <Sprite key={i} x={sprite.x} y={sprite.y} color={sprite.color} size={SPRITE_SIZE} />
           ))}
+          
+          {/* Back Button (using onBack prop if provided) */}
+          <button 
+            onClick={onBack}
+            style={{
+              position: 'absolute',
+              top: '10px',
+              left: '10px',
+              padding: '10px',
+              zIndex: 50
+            }}
+          >
+            Back
+          </button>
         </>
       )}
     </div>
