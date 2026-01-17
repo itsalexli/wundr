@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import '../App.css'
+import DictationTool from './DictationTool'
 
 function App() {
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const keysPressed = useRef(new Set<string>())
-  
+
   // Track keys
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -14,7 +15,7 @@ function App() {
       keysPressed.current.add(e.key);
     }
     const handleKeyUp = (e: KeyboardEvent) => keysPressed.current.delete(e.key)
-    
+
     window.addEventListener('keydown', handleKeyDown)
     window.addEventListener('keyup', handleKeyUp)
     return () => {
@@ -57,7 +58,8 @@ function App() {
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden', backgroundColor: '#f0f0f0' }}>
-      <div 
+      <DictationTool />
+      <div
         style={{
           width: '50px',
           height: '50px',
