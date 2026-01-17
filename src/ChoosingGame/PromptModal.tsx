@@ -132,7 +132,7 @@ export function PromptModal({
                     />
                     <div style={styles.buttonContainer}>
                         <DictationButton
-                            onTranscriptChange={(text) => setAnswer((prev) => prev + text)}
+                            onTranscriptChange={(text) => setAnswer(text)}
                             size={48}
                         />
                     </div>

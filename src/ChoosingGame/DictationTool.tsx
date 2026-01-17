@@ -71,7 +71,21 @@ export function DictationButton({
 }: DictationButtonProps) {
     const [isListening, setIsListening] = useState(false);
     const recognitionRef = useRef<SpeechRecognition | null>(null);
-    const finalTranscriptRef = useRef('');
+    // Track whether the user intentionally stopped (vs browser auto-stopping)
+    const shouldBeListeningRef = useRef(false);
+    // Accumulated transcript across all recognition restarts (entire session)
+    const accumulatedTranscriptRef = useRef('');
+    // Track the last finalized text from current recognition session to avoid duplicates
+    const lastFinalizedRef = useRef('');
+    // Store callbacks in refs to avoid recreating recognition on every render
+    const onTranscriptChangeRef = useRef(onTranscriptChange);
+    const onFinalTranscriptRef = useRef(onFinalTranscript);
+
+    // Keep refs updated with latest callbacks
+    useEffect(() => {
+        onTranscriptChangeRef.current = onTranscriptChange;
+        onFinalTranscriptRef.current = onFinalTranscript;
+    }, [onTranscriptChange, onFinalTranscript]);
 
     useEffect(() => {
         const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -83,46 +97,86 @@ export function DictationButton({
             recognition.lang = language;
 
             recognition.onresult = (event: SpeechRecognitionEvent) => {
-                let finalText = '';
+                let sessionFinalText = '';
                 let interimText = '';
 
                 for (let i = 0; i < event.results.length; i++) {
                     const result = event.results[i];
                     if (result.isFinal) {
-                        finalText += result[0].transcript;
+                        sessionFinalText += result[0].transcript;
                     } else {
                         interimText += result[0].transcript;
                     }
                 }
 
-                finalTranscriptRef.current = finalText;
+                // Check if we have new finalized text
+                if (sessionFinalText && sessionFinalText !== lastFinalizedRef.current) {
+                    // Add spacer between accumulated words
+                    if (accumulatedTranscriptRef.current && !accumulatedTranscriptRef.current.endsWith(' ')) {
+                        accumulatedTranscriptRef.current += ' ';
+                    }
+                    accumulatedTranscriptRef.current += sessionFinalText.trim();
+                    lastFinalizedRef.current = sessionFinalText;
+                }
 
-                // Notify parent of full transcript (final + interim)
-                onTranscriptChange?.(finalText + interimText);
+                // Full transcript = accumulated + current interim
+                const fullTranscript = accumulatedTranscriptRef.current +
+                    (interimText ? (accumulatedTranscriptRef.current ? ' ' : '') + interimText : '');
+
+                // Notify parent of full transcript (accumulated + interim)
+                onTranscriptChangeRef.current?.(fullTranscript);
 
                 // Notify parent of finalized text only
-                if (finalText) {
-                    onFinalTranscript?.(finalText);
+                if (sessionFinalText) {
+                    onFinalTranscriptRef.current?.(accumulatedTranscriptRef.current);
                 }
             };
 
-            recognition.onerror = () => {
+            recognition.onerror = (event: Event) => {
+                // Don't stop if it's just a no-speech error, try to restart
+                const errorEvent = event as Event & { error?: string };
+                if (errorEvent.error === 'no-speech' && shouldBeListeningRef.current) {
+                    // Restart recognition after a brief delay
+                    setTimeout(() => {
+                        if (shouldBeListeningRef.current && recognitionRef.current) {
+                            try {
+                                recognitionRef.current.start();
+                            } catch (e) {
+                                // Already started, ignore
+                            }
+                        }
+                    }, 100);
+                    return;
+                }
+                shouldBeListeningRef.current = false;
                 setIsListening(false);
             };
 
             recognition.onend = () => {
-                setIsListening(false);
+                // Auto-restart if user didn't manually stop
+                if (shouldBeListeningRef.current && recognitionRef.current) {
+                    try {
+                        recognitionRef.current.start();
+                    } catch (e) {
+                        // Already started or other error, stop listening
+                        shouldBeListeningRef.current = false;
+                        setIsListening(false);
+                    }
+                } else {
+                    setIsListening(false);
+                }
             };
 
             recognitionRef.current = recognition;
         }
 
         return () => {
+            shouldBeListeningRef.current = false;
             if (recognitionRef.current) {
                 recognitionRef.current.abort();
             }
         };
-    }, [language, onTranscriptChange, onFinalTranscript]);
+    }, [language]); // Only recreate on language change
 
     const toggleListening = () => {
         if (!recognitionRef.current) {
@@ -131,10 +185,14 @@ export function DictationButton({
         }
 
         if (isListening) {
+            shouldBeListeningRef.current = false;
             recognitionRef.current.stop();
             setIsListening(false);
         } else {
-            finalTranscriptRef.current = '';
+            // Reset accumulated transcript for new session
+            accumulatedTranscriptRef.current = '';
+            lastFinalizedRef.current = '';
+            shouldBeListeningRef.current = true;
             recognitionRef.current.start();
             setIsListening(true);
         }

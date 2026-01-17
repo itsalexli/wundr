@@ -1,24 +1,23 @@
-import type { FC } from 'react';
+import type { CSSProperties } from 'react'
 
 interface SpriteProps {
-  x: number;
-  y: number;
-  color: string;
-  size?: number;
+    x: number
+    y: number
+    color: string
+    size: number
 }
 
-export const Sprite: FC<SpriteProps> = ({ x, y, color, size = 50 }) => {
-  return (
-    <div
-      style={{
-        width: `${size}px`,
-        height: `${size}px`,
-        backgroundColor: color,
+export function Sprite({ x, y, color, size }: SpriteProps) {
+    const style: CSSProperties = {
         position: 'absolute',
-        top: 0,
-        left: 0,
-        transform: `translate(${x}px, ${y}px)`,
-      }}
-    />
-  );
-};
+        left: x,
+        top: y,
+        width: size,
+        height: size,
+        backgroundColor: color,
+        borderRadius: '8px',
+        transition: 'left 0.05s linear, top 0.05s linear'
+    }
+
+    return <div style={style} />
+}

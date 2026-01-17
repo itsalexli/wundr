@@ -1,14 +1,26 @@
-  import { useState, useEffect } from 'react'
-  import '../App.css'
-  import { useInputController } from './useInputController'
-  import { Sprite } from './Sprite'
-  import { staticSprites, SPRITE_SIZE } from './gameConfig'
-  import progressBarImg from '../assets/progressbar.png'
+import { useState, useEffect } from 'react'
+import '../App.css'
+import { useInputController } from '../shared/useInputController'
+import { Sprite } from '../shared/Sprite'
+import { staticSprites, SPRITE_SIZE, type StaticSprite } from './gameConfig'
+import { PromptModal } from './PromptModal'
 
-  function App() {
-    const [position, setPosition] = useState({ x: 0, y: 0 })
-    const [activeMenu, setActiveMenu] = useState<string | null>(null)
-    const keysPressed = useInputController()
+// Store user answers
+export interface UserAnswers {
+  character?: string;
+  music?: string;
+  background?: string;
+}
+
+interface ChoosingGameProps {
+  onEnterPortal?: (answers: UserAnswers) => void;
+}
+
+function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [activeMenu, setActiveMenu] = useState<string | null>(null)
+  const [answers, setAnswers] = useState<UserAnswers>({})
+  const keysPressed = useInputController()
 
     // Game Loop
     useEffect(() => {
@@ -17,20 +29,18 @@
       let animationFrameId: number;
       const speed = 5; // pixels per frame
 
-      const checkCollision = (xp: number, yp: number) => {
-        for (const sprite of staticSprites) {
-          if (
-            xp < sprite.x + SPRITE_SIZE &&
-            xp + SPRITE_SIZE > sprite.x &&
-            yp < sprite.y + SPRITE_SIZE &&
-            yp + SPRITE_SIZE > sprite.y
-          ) {
-            setActiveMenu(sprite.id)
-            // Optional: Bounce back slightly to avoid immediate re-trigger on close?
-            // For now, simpler is fine, but we might want to ensure we don't get stuck.
-          }
+    const checkCollision = (xp: number, yp: number) => {
+      for (const sprite of staticSprites) {
+        if (
+          xp < sprite.x + SPRITE_SIZE &&
+          xp + SPRITE_SIZE > sprite.x &&
+          yp < sprite.y + SPRITE_SIZE &&
+          yp + SPRITE_SIZE > sprite.y
+        ) {
+          setActiveMenu(sprite.id)
         }
       }
+    }
 
       const gameLoop = () => {
         setPosition(prev => {
@@ -46,9 +56,7 @@
           newX = Math.max(0, Math.min(newX, window.innerWidth - SPRITE_SIZE));
           newY = Math.max(0, Math.min(newY, window.innerHeight - SPRITE_SIZE));
 
-          // Collision Check uses PREDICTED position to stop movement? 
-          // Or reactive? Reactive means we overlap. Let's stick effectively to reactive trigger.
-          checkCollision(newX, newY);
+        checkCollision(newX, newY);
 
           return { x: newX, y: newY };
         });
@@ -56,100 +64,129 @@
         animationFrameId = requestAnimationFrame(gameLoop);
       };
 
-      animationFrameId = requestAnimationFrame(gameLoop);
-      return () => cancelAnimationFrame(animationFrameId);
-    }, [activeMenu]); // Re-run effect when activeMenu changes (to start/stop loop)
+    animationFrameId = requestAnimationFrame(gameLoop);
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [activeMenu]);
 
-    const activeSprite = staticSprites.find(s => s.id === activeMenu);
+  const activeSprite = staticSprites.find(s => s.id === activeMenu);
+
+  const handleClose = (sprite: StaticSprite) => {
+    setActiveMenu(null)
+    // Nudge player away to prevent immediate re-collision
+    setPosition(prev => ({
+      x: prev.x < sprite.x ? prev.x - 10 : prev.x + 10,
+      y: prev.y < sprite.y ? prev.y - 10 : prev.y + 10
+    }))
+  }
+
+  const handleSubmit = (sprite: StaticSprite, answer: string) => {
+    // Save the answer based on sprite id
+    setAnswers(prev => ({
+      ...prev,
+      [sprite.id]: answer
+    }))
+    console.log(`Answer for ${sprite.id}:`, answer)
+    handleClose(sprite)
+  }
 
     return (
       <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden', backgroundColor: '#f0f0f0' }}>
         {/* Player */}
         <Sprite x={position.x} y={position.y} color="red" size={SPRITE_SIZE} />
 
-        {/* Static Sprites */}
-        {staticSprites.map((sprite, i) => (
-          <Sprite key={i} x={sprite.x} y={sprite.y} color={sprite.color} size={SPRITE_SIZE} />
-        ))}
+      {/* Static Sprites */}
+      {staticSprites.map((sprite) => (
+        <Sprite key={sprite.id} x={sprite.x} y={sprite.y} color={sprite.color} size={SPRITE_SIZE} />
+      ))}
 
-        {/* Menu Overlay */}
-        {activeMenu && activeSprite && (
+      {/* Portal Modal (no text input) */}
+      {activeMenu && activeSprite?.isPortal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0,0,0,0.6)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 2000
+        }}>
           <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 100
+            backgroundColor: 'white',
+            padding: '32px',
+            borderRadius: '16px',
+            textAlign: 'center',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
           }}>
-            <div style={{
-              backgroundColor: 'white',
-              padding: '20px',
-              borderRadius: '10px',
-              width: '70%',
-              height: '70%',
-              textAlign: 'center',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center'
-            }}>
-              <h2>{activeSprite.title}</h2>
-              <p>You found a sprite!</p>
+            <h2 style={{ margin: '0 0 16px', color: '#333' }}>🌀 Portal</h2>
+            <p style={{ color: '#666', marginBottom: '20px' }}>Ready to enter your adventure?</p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
               <button
-                onClick={() => {
-                  setActiveMenu(null)
-                  // Teleport slightly away or ensure we don't get stuck in loop?
-                  // Just moving 1px away from collision direction would be smart, but for now simple release.
-                  // Actually, if we are overlapping, game loop immediately re-triggers collision on next frame.
-                  // We should move the player back to previous valid position or push them out.
-                  // Let's simple-fix: Reset position slightly away? 
-                  // Or just ignore collision for a split second?
-                  // Safest for "ChoosingGame" is usually to just set position to 'safe' adjacent spot or rely on user moving away? 
-                  // Wait, if I close menu and I'm still overlapping, checking collision happens immediately and reopens menu.
-                  // I will add a simple 'nudge' to the player position when closing menu to help them escape.
-                  setPosition(prev => ({
-                    x: prev.x < activeSprite.x ? prev.x - 10 : prev.x + 10,
-                    y: prev.y < activeSprite.y ? prev.y - 10 : prev.y + 10
-                  }))
-                }}
+                onClick={() => handleClose(activeSprite)}
                 style={{
-                  marginTop: '10px',
-                  padding: '10px 20px',
-                  backgroundColor: activeSprite.color,
+                  padding: '12px 24px',
+                  backgroundColor: '#666',
                   color: 'white',
                   border: 'none',
-                  borderRadius: '5px',
+                  borderRadius: '8px',
+                  fontSize: '16px',
                   cursor: 'pointer'
                 }}
               >
                 Close
               </button>
+              <button
+                onClick={() => onEnterPortal?.(answers)}
+                style={{
+                  padding: '12px 24px',
+                  backgroundColor: activeSprite.color,
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
+                }}
+              >
+                Enter Portal 🚀
+              </button>
             </div>
           </div>
-        )}
-        
-        {/* Progress Bar */}
-        <img 
-          src={progressBarImg} 
-          alt="Progress Bar" 
-          style={{
+        </div>
+      )}
+
+      {/* Question Modal with text/dictation input */}
+      {activeMenu && activeSprite && !activeSprite.isPortal && (
+        <PromptModal
+          prompt={activeSprite.prompt}
+          onSubmit={(answer) => handleSubmit(activeSprite, answer)}
+          onClose={() => handleClose(activeSprite)}
+          placeholder="Type your answer or use the mic..."
+        />
+      )}
+
+      {/* Debug: Show collected answers */}
+      {Object.keys(answers).length > 0 && (
+        <div style={{
           position: 'absolute',
-          bottom: '20px',
-          right: '20px',
-          width: '700px', // Adjust size as needed, starting with 150px width
-          zIndex: 50,
-          pointerEvents: 'none' // Ensure it doesn't block clicks if transparent
-        }} 
-      />
+          bottom: '16px',
+          left: '16px',
+          backgroundColor: 'rgba(255,255,255,0.9)',
+          padding: '12px',
+          borderRadius: '8px',
+          fontSize: '12px',
+          maxWidth: '300px'
+        }}>
+          <strong>Your choices:</strong>
+          {answers.character && <div>👤 Character: {answers.character}</div>}
+          {answers.music && <div>🎵 Music: {answers.music}</div>}
+          {answers.background && <div>🖼️ Background: {answers.background}</div>}
+        </div>
+      )}
     </div>
   )
 }
 
-export default App
-
-
+export default ChoosingGame
