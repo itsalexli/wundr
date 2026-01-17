@@ -5,6 +5,8 @@ import { Sprite } from '../shared/Sprite'
 import { staticSprites, SPRITE_SIZE, type StaticSprite } from './gameConfig'
 import { PromptModal } from './PromptModal'
 import progressBarImg from '../assets/progressbar.png'
+import defaultLeftImg from '../assets/defaultleft.png'
+import defaultRightImg from '../assets/defaultright.png'
 
 // Store user answers
 export interface UserAnswers {
@@ -19,6 +21,7 @@ interface ChoosingGameProps {
 
 function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [direction, setDirection] = useState<'left' | 'right'>('right')
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const [answers, setAnswers] = useState<UserAnswers>({})
   const keysPressed = useInputController()
@@ -50,8 +53,14 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
 
           if (keysPressed.current.has('ArrowUp')) newY -= speed;
           if (keysPressed.current.has('ArrowDown')) newY += speed;
-          if (keysPressed.current.has('ArrowLeft')) newX -= speed;
-          if (keysPressed.current.has('ArrowRight')) newX += speed;
+          if (keysPressed.current.has('ArrowLeft')) {
+            newX -= speed;
+            setDirection('left');
+          }
+          if (keysPressed.current.has('ArrowRight')) {
+            newX += speed;
+            setDirection('right');
+          }
 
           // Boundary Check
           newX = Math.max(0, Math.min(newX, window.innerWidth - SPRITE_SIZE));
@@ -93,7 +102,13 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
     return (
       <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden', backgroundColor: '#f0f0f0' }}>
         {/* Player */}
-        <Sprite x={position.x} y={position.y} color="red" size={SPRITE_SIZE} />
+        <Sprite 
+          x={position.x} 
+          y={position.y} 
+          color="red" 
+          size={SPRITE_SIZE} 
+          image={direction === 'left' ? defaultLeftImg : defaultRightImg}
+        />
 
       {/* Static Sprites */}
       {staticSprites.map((sprite) => (
