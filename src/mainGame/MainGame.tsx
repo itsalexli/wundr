@@ -68,11 +68,11 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
 
     // Manually place each sprite at (100, 200) one at a time
     const newSprites: StaticSprite[] = [
-      { ...initialSprites[0], x: 500, y: 180, image: getRandomImage() },
-      { ...initialSprites[1], x: 325, y: 60, image: getRandomImage() },
-      { ...initialSprites[4], x: 950, y: 200, image: getRandomImage() },
-      { ...initialSprites[5], x: 1100, y: 50, image: getRandomImage() },
-      { ...initialSprites[6], x: 725, y: 375, image: getRandomImage() },
+      { ...initialSprites[0], x: 540, y: 240, image: getRandomImage() },
+      { ...initialSprites[1], x: 370, y: 120, image: getRandomImage() },
+      { ...initialSprites[4], x: 930, y: 260, image: getRandomImage() },
+      { ...initialSprites[5], x: 1090, y: 110, image: getRandomImage() },
+      { ...initialSprites[6], x: 725, y: 420, image: getRandomImage() },
     ];
 
     setGameSprites(newSprites);
@@ -328,8 +328,8 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
             onClick={() => setIsInventoryOpen(true)}
             style={{
               position: 'absolute',
-              top: '100px', // Pushed down further to be safely below the stats box
-              right: '20px',
+              top: '20px', // Pushed down further to be safely below the stats box
+              right: '285px',
               width: '60px',
               height: '60px',
               backgroundImage: `url(${bagImg})`,
@@ -367,7 +367,7 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
               <span style={{
                 position: 'absolute',
                 top: '10px',
-                right: '27px',
+                right: '30px',
                 fontSize: '30px',
                 fontWeight: 'bold',
                 color: '#e53935',
