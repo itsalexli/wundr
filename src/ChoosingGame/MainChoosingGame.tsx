@@ -525,9 +525,9 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
             flexDirection: "column",
             gap: "16px",
             width: "80%",
-            marginLeft: '0px',
-            marginRight: '550px',
-            marginBottom: '250px',
+            marginLeft: '-30px',
+            marginRight: '525px',
+            marginBottom: '125px',
             marginTop: 'auto'
         }}>
             {recommendedTracks.map((track, index) => {
@@ -886,7 +886,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                 : activeSprite.id === "background"
                   ? "63%"
                   : activeSprite.id === "music"
-                    ? "63%"
+                    ? "65%"
                     : undefined
             }
             height={
@@ -931,8 +931,8 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                         ? { display: 'none' } // Hide input in review mode
                         : {
                             position: "absolute",
-                            top: "285px",
-                            right: "225px",
+                            top: "260px",
+                            right: "218px",
                             width: "85%", // Ensure it fits
                             maxWidth: "250px", // Constrain width
                             zIndex: 10, // Ensure it appears above background
