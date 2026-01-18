@@ -1,6 +1,6 @@
 import type { FC } from 'react'
 import landingpage from './assets/images/landingpage.png'
-import startgame from './assets/images/startgame.png'
+import startgame from './assets/images/buttons/startgame.png'
 
 interface LandingPageProps {
   onStartGame: () => void;

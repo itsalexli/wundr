@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { DictationButton } from './DictationTool';
+import submitButtonImg from '../assets/images/buttons/submitButton.png';
 
 export interface PromptModalProps {
     /** The prompt/question to display */
@@ -22,8 +23,6 @@ export interface PromptModalProps {
     leftPaneContent?: React.ReactNode;
     /** Optional content to render in the right pane */
     rightPaneContent?: React.ReactNode;
-    /** Custom label for the submit button */
-    submitLabel?: string;
     /** Whether to show loading state */
     isLoading?: boolean;
     /** Whether to clear input on submit (default true) */
@@ -37,6 +36,8 @@ export interface PromptModalProps {
     textareaStyle?: React.CSSProperties;
     /** Optional image for the close button */
     closeButtonImage?: string;
+    /** Optional custom style for the close button */
+    closeButtonStyle?: React.CSSProperties;
 }
 
 export function PromptModal({
@@ -50,13 +51,13 @@ export function PromptModal({
     onInputChange,
     leftPaneContent,
     rightPaneContent,
-    submitLabel = 'Submit',
     isLoading = false,
     clearOnSubmit = true,
     backgroundImage,
     inputAreaStyle,
     textareaStyle,
     closeButtonImage,
+    closeButtonStyle,
 }: PromptModalProps) {
     const [answer, setAnswer] = useState('');
     const [answerBeforeDictation, setAnswerBeforeDictation] = useState('');
@@ -113,7 +114,7 @@ export function PromptModal({
         },
         closeButton: closeButtonImage ? {
             position: 'absolute',
-            top: '60px',
+            top: '40px',
             right: '70px',
             width: '60px',
             height: 'auto',
@@ -122,6 +123,7 @@ export function PromptModal({
             padding: 0,
             cursor: 'pointer',
             zIndex: 10,
+            ...closeButtonStyle, // Apply custom styles
         } : {
             position: 'absolute',
             top: '12px',
@@ -137,6 +139,7 @@ export function PromptModal({
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 10,
+            ...closeButtonStyle, // Apply custom styles
         },
         // Split Layout Styles
         splitContainer: {
@@ -192,31 +195,40 @@ export function PromptModal({
             resize: 'vertical' as const,
             ...textareaStyle, // Apply custom styles
         },
-        buttonContainer: {
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px',
-        },
         submitButton: {
-            padding: '12px 24px',
-            borderRadius: '8px',
-            border: 'none', 
-            backgroundColor: isLoading ? '#ccc' : '#4a90d9',
-            color: 'white',
-            fontSize: '16px',
-            fontWeight: 600,
+            border: 'none',
+            background: 'none',
             cursor: isLoading ? 'wait' : 'pointer',
             marginTop: '16px',
-            width: '85%',
+            width: '100%',
+            height: '60px',
             display: 'flex',
-            justifyContent: 'center',
             alignItems: 'center',
-            gap: '8px'
+            justifyContent: 'center'
+        },
+        submitRow: {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '5px',
+            marginTop: '-13px'
+        },
+        dictationContainer: {
+            display: 'flex',
+            alignItems: 'center'
         },
     };
 
     const renderContent = () => (
         <>
+            <style>
+                {`
+                    .prompt-modal-textarea:focus {
+                        outline: 2px solid #8B4513 !important;
+                        outline-offset: 2px;
+                    }
+                `}
+            </style>
             {/* Prompt Text */}
             <div style={styles.promptText}>{prompt}</div>
 
@@ -224,6 +236,7 @@ export function PromptModal({
             <div style={styles.inputWrapper}>
                 <div style={styles.inputContainer}>
                     <textarea
+                        className="prompt-modal-textarea"
                         style={styles.textarea}
                         value={answer}
                         onChange={handleInputChange}
@@ -232,7 +245,24 @@ export function PromptModal({
                         autoFocus
                         disabled={isLoading}
                     />
-                    <div style={styles.buttonContainer}>
+                </div>
+
+                {/* Submit Button and Dictation Tool Row */}
+                <div style={styles.submitRow}>
+                    <button style={styles.submitButton} onClick={handleSubmit} disabled={isLoading}>
+                        {isLoading ? 'Loading...' : (
+                            <img
+                                src={submitButtonImg}
+                                alt="Submit"
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'contain'
+                                }}
+                            />
+                        )}
+                    </button>
+                    <div style={styles.dictationContainer}>
                         <DictationButton
                             onDictationStart={() => setAnswerBeforeDictation(answer)}
                             onTranscriptChange={(text) => {
@@ -245,11 +275,6 @@ export function PromptModal({
                         />
                     </div>
                 </div>
-
-                {/* Submit Button */}
-                <button style={styles.submitButton} onClick={handleSubmit} disabled={isLoading}>
-                    {isLoading ? 'Loading...' : submitLabel}
-                </button>
             </div>
         </>
     );
