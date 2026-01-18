@@ -2,9 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { SPRITE_SIZE, type StaticSprite } from './gameConfig';
 import fillerImage from '../assets/images/filler-image.jpg';
 import { QuestionScreen } from './QuestionScreen';
+import { initializeQuestionBank, getNextQuestion, recordResult, isQuestionBankReady, type AgeLevel } from './questionBank';
+import type { Question } from './questionGenerator';
 
 interface BattleScreenProps {
   enemy: StaticSprite;
+  learningMaterial?: string;
+  ageLevel?: AgeLevel;
   onClose: () => void;
 }
 
@@ -16,16 +20,30 @@ interface Projectile {
   stopped?: boolean;
 }
 
-export const BattleScreen: React.FC<BattleScreenProps> = ({ enemy, onClose }) => {
+export const BattleScreen: React.FC<BattleScreenProps> = ({ enemy, learningMaterial, ageLevel = '6-7', onClose }) => {
   const [activeSpell, setActiveSpell] = useState<string | null>(null);
+  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [projectiles, setProjectiles] = useState<Projectile[]>([]);
   const [isEnemyHurt, setIsEnemyHurt] = useState(false);
   const [isPlayerHurt, setIsPlayerHurt] = useState(false);
-  
+
   const [playerHP, setPlayerHP] = useState(100);
   const [enemyHP, setEnemyHP] = useState(100);
-  
+
   const [battleResult, setBattleResult] = useState<'win' | 'loss' | null>(null);
+  const [isBankReady, setIsBankReady] = useState(false);
+
+  // Initialize question bank on mount
+  useEffect(() => {
+    if (learningMaterial) {
+      initializeQuestionBank(learningMaterial, ageLevel, 15)
+        .then(() => {
+          setIsBankReady(true);
+          console.log('Question bank ready!');
+        })
+        .catch(err => console.error('Failed to initialize question bank:', err));
+    }
+  }, [learningMaterial, ageLevel]);
 
   // Check for Win/Loss
   useEffect(() => {
@@ -63,21 +81,21 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ enemy, onClose }) =>
           let stopped = false;
 
           // Check collision with enemy
-          if (enemyRect && nextX + 10 >= enemyRect.left) { 
-             stopped = true;
-             hitOccurred = true;
+          if (enemyRect && nextX + 10 >= enemyRect.left) {
+            stopped = true;
+            hitOccurred = true;
           }
 
           return { ...p, x: nextX, stopped };
-        }) 
+        })
         .filter(p => !p.stopped && p.x < window.innerWidth);
 
-        if (hitOccurred) {
-          setEnemyHP(prev => Math.max(0, prev - 20));
-          setIsEnemyHurt(true);
-          setTimeout(() => setIsEnemyHurt(false), 200);
-        }
-      
+      if (hitOccurred) {
+        setEnemyHP(prev => Math.max(0, prev - 20));
+        setIsEnemyHurt(true);
+        setTimeout(() => setIsEnemyHurt(false), 200);
+      }
+
       setProjectiles(nextProjectiles);
     });
 
@@ -88,6 +106,12 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ enemy, onClose }) =>
     const spell = activeSpell;
     setActiveSpell(null);
 
+    // Record result to question bank
+    if (currentQuestion) {
+      recordResult(currentQuestion, correct === true);
+      setCurrentQuestion(null);
+    }
+
     if (correct && spell) {
       let color = 'white';
       if (spell === 'Fireball') color = 'red';
@@ -95,31 +119,42 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ enemy, onClose }) =>
       else if (spell === 'Lightning') color = 'yellow';
       else if (spell === 'Heal') color = 'green';
 
-      // Start projectile from player position (approx left side)
-      // We need to calculate start positions relative to the screen
-      // Player is at ~10-20% width? Let's approximate for now based on screen structure.
-      // Or we can just start it from fixed % and animate to right.
-      
       const newProjectile: Projectile = {
         id: Date.now(),
-        x: window.innerWidth * 0.2, // Approx player start
-        y: window.innerHeight / 2,  // Center vertically
+        x: window.innerWidth * 0.2,
+        y: window.innerHeight / 2,
         color
       };
-      
+
       setProjectiles(prev => [...prev, newProjectile]);
     } else if (!correct) {
-      // Player got it wrong, player gets hurt after a short delay
       setTimeout(() => {
         setIsPlayerHurt(true);
-        setPlayerHP(prev => Math.max(0, prev - 20)); // Damage player
+        setPlayerHP(prev => Math.max(0, prev - 20));
         setTimeout(() => setIsPlayerHurt(false), 200);
       }, 300);
     }
   };
 
+  // Handle spell button click - fetch question from bank first
+  const handleSpellClick = (spell: string) => {
+    if (isQuestionBankReady()) {
+      const question = getNextQuestion();
+      setCurrentQuestion(question);
+    }
+    setActiveSpell(spell);
+  };
+
   if (activeSpell) {
-    return <QuestionScreen spellName={activeSpell} onClose={handleSpellComplete} />;
+    return (
+      <QuestionScreen
+        spellName={activeSpell}
+        learningMaterial={learningMaterial}
+        ageLevel={ageLevel}
+        preloadedQuestion={currentQuestion}
+        onClose={handleSpellComplete}
+      />
+    );
   }
 
   return (
@@ -141,7 +176,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ enemy, onClose }) =>
       color: 'white'
     }}>
       <h1 style={{ marginBottom: '50px', marginTop: '50px' }}>Player VS {enemy.title}</h1>
-      
+
       {/* Projectiles Layer */}
       {projectiles.map(p => (
         <div
@@ -210,7 +245,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ enemy, onClose }) =>
             </div>
           </div>
 
-          <div style={{ 
+          <div style={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
@@ -271,7 +306,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ enemy, onClose }) =>
             </div>
           </div>
 
-          <div ref={enemyRef} style={{ 
+          <div ref={enemyRef} style={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
@@ -299,15 +334,16 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({ enemy, onClose }) =>
         {['Fireball', 'Ice Shard', 'Lightning', 'Heal'].map((spell) => (
           <button
             key={spell}
-            onClick={() => setActiveSpell(spell)}
+            onClick={() => handleSpellClick(spell)}
+            disabled={!isBankReady && !!learningMaterial}
             style={{
               padding: '15px 30px',
               fontSize: '18px',
-              backgroundColor: '#4a90e2',
+              backgroundColor: (!isBankReady && learningMaterial) ? '#999' : '#4a90e2',
               color: 'white',
               border: '2px solid white',
               borderRadius: '8px',
-              cursor: 'pointer',
+              cursor: (!isBankReady && learningMaterial) ? 'wait' : 'pointer',
               flex: 1,
               maxWidth: '200px'
             }}

@@ -27,10 +27,10 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
   const [direction, setDirection] = useState<'up' | 'down' | 'left' | 'right'>('down')
   const [isMoving, setIsMoving] = useState(false)
   const [frameToggle, setFrameToggle] = useState(false) // For animation
-  
+
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const [background, setBackground] = useState<BackgroundImage | null>(null)
-  const [isLoadingBg, setIsLoadingBg] = useState(false)
+  const [, setIsLoadingBg] = useState(false)
   const keysPressed = useInputController()
 
   // Match background on mount based on user's answer
@@ -154,8 +154,10 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
     <div style={backgroundStyle}>
       {/* Battle Screen Overlay takes full precedence if active */}
       {activeMenu && activeSprite ? (
-        <BattleScreen 
+        <BattleScreen
           enemy={activeSprite}
+          learningMaterial={userAnswers.learningMaterial}
+          ageLevel={userAnswers.ageLevel}
           onClose={() => {
             setActiveMenu(null)
             // Nudge player away to avoid immediate re-collision
@@ -211,6 +213,7 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
                   ? (isMoving && frameToggle ? hkRightWalk : hkRight)
                   : (isMoving && frameToggle ? hkDownWalk : hkDown))
             }
+
           />
 
           {/* Static Sprites */}

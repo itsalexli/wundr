@@ -1,0 +1,46 @@
+
+> uofthacks2026.json@0.0.0 build
+> tsc -b && vite build
+
+src/ChoosingGame/MainChoosingGame.tsx(7,43): error TS1261: Already included file name '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/questionBank.ts' differs from file name '/Users/alexli/Desktop/workspace/UofTHacks2026/src/MainGame/questionBank.ts' only in casing.
+  The file is in the program because:
+    Imported via '../mainGame/questionBank' from file '/Users/alexli/Desktop/workspace/UofTHacks2026/src/ChoosingGame/MainChoosingGame.tsx'
+    Imported via './questionBank' from file '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/questionGenerator.ts'
+    Imported via './questionBank' from file '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/QuestionScreen.tsx'
+    Imported via './questionBank' from file '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/BattleScreen.tsx'
+    Matched by include pattern 'src' in '/Users/alexli/Desktop/workspace/UofTHacks2026/tsconfig.app.json'
+src/ChoosingGame/MainChoosingGame.tsx(47,10): error TS6133: 'currentInput' is declared but its value is never read.
+src/ChoosingGame/MainChoosingGame.tsx(214,9): error TS6133: 'isCustom' is declared but its value is never read.
+src/main.tsx(4,22): error TS1261: Already included file name '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/MainGame.tsx' differs from file name '/Users/alexli/Desktop/workspace/UofTHacks2026/src/MainGame/MainGame.tsx' only in casing.
+  The file is in the program because:
+    Imported via './mainGame/MainGame.tsx' from file '/Users/alexli/Desktop/workspace/UofTHacks2026/src/main.tsx'
+    Matched by include pattern 'src' in '/Users/alexli/Desktop/workspace/UofTHacks2026/tsconfig.app.json'
+src/mainGame/backgroundMatcher.ts(12,70): error TS1261: Already included file name '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/backgroundConfig.ts' differs from file name '/Users/alexli/Desktop/workspace/UofTHacks2026/src/MainGame/backgroundConfig.ts' only in casing.
+  The file is in the program because:
+    Imported via './backgroundConfig' from file '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/backgroundMatcher.ts'
+    Imported via './backgroundConfig' from file '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/backgroundMatcher.ts'
+    Matched by include pattern 'src' in '/Users/alexli/Desktop/workspace/UofTHacks2026/tsconfig.app.json'
+src/mainGame/BattleScreen.tsx(4,32): error TS1261: Already included file name '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/QuestionScreen.tsx' differs from file name '/Users/alexli/Desktop/workspace/UofTHacks2026/src/MainGame/QuestionScreen.tsx' only in casing.
+  The file is in the program because:
+    Imported via './QuestionScreen' from file '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/BattleScreen.tsx'
+    Matched by include pattern 'src' in '/Users/alexli/Desktop/workspace/UofTHacks2026/tsconfig.app.json'
+src/mainGame/MainGame.tsx(5,57): error TS1261: Already included file name '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/gameConfig.ts' differs from file name '/Users/alexli/Desktop/workspace/UofTHacks2026/src/MainGame/gameConfig.ts' only in casing.
+  The file is in the program because:
+    Imported via './gameConfig' from file '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/MainGame.tsx'
+    Imported via './gameConfig' from file '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/BattleScreen.tsx'
+    Matched by include pattern 'src' in '/Users/alexli/Desktop/workspace/UofTHacks2026/tsconfig.app.json'
+src/mainGame/MainGame.tsx(7,30): error TS1261: Already included file name '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/BattleScreen.tsx' differs from file name '/Users/alexli/Desktop/workspace/UofTHacks2026/src/MainGame/BattleScreen.tsx' only in casing.
+  The file is in the program because:
+    Imported via './BattleScreen' from file '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/MainGame.tsx'
+    Matched by include pattern 'src' in '/Users/alexli/Desktop/workspace/UofTHacks2026/tsconfig.app.json'
+src/mainGame/MainGame.tsx(8,55): error TS1261: Already included file name '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/backgroundMatcher.ts' differs from file name '/Users/alexli/Desktop/workspace/UofTHacks2026/src/MainGame/backgroundMatcher.ts' only in casing.
+  The file is in the program because:
+    Imported via './backgroundMatcher' from file '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/MainGame.tsx'
+    Matched by include pattern 'src' in '/Users/alexli/Desktop/workspace/UofTHacks2026/tsconfig.app.json'
+src/mainGame/MainGame.tsx(33,10): error TS6133: 'isLoadingBg' is declared but its value is never read.
+src/mainGame/questionBank.ts(8,49): error TS1261: Already included file name '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/questionGenerator.ts' differs from file name '/Users/alexli/Desktop/workspace/UofTHacks2026/src/MainGame/questionGenerator.ts' only in casing.
+  The file is in the program because:
+    Imported via './questionGenerator' from file '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/questionBank.ts'
+    Imported via './questionGenerator' from file '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/QuestionScreen.tsx'
+    Imported via './questionGenerator' from file '/Users/alexli/Desktop/workspace/UofTHacks2026/src/mainGame/BattleScreen.tsx'
+    Matched by include pattern 'src' in '/Users/alexli/Desktop/workspace/UofTHacks2026/tsconfig.app.json'

@@ -4,6 +4,7 @@ import { useInputController } from '../shared/useInputController'
 import { Sprite } from '../shared/Sprite'
 import { staticSprites, SPRITE_SIZE, type StaticSprite } from './gameConfig'
 import { PromptModal } from './PromptModal'
+import { AGE_LEVELS, type AgeLevel } from '../mainGame/questionBank'
 import progressBar0 from '../assets/images/progressBar0.png'
 import progressBar1 from '../assets/images/progressBar1.png'
 import progressBar2 from '../assets/images/progressBar2.png'
@@ -30,6 +31,8 @@ export interface UserAnswers {
     left: string;
     right: string;
   };
+  learningMaterial?: string;  // Study material for quiz questions
+  ageLevel?: AgeLevel;  // Age-level difficulty for questions
 }
 
 interface ChoosingGameProps {
@@ -41,11 +44,13 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
   const [direction, setDirection] = useState<'left' | 'right' | 'up' | 'down'>('right')
   const [characterType, setCharacterType] = useState<'default' | 'hellokitty' | 'custom'>('default')
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
-  const [currentInput, setCurrentInput] = useState('')
+  const [, setCurrentInput] = useState('')
   const [modalStep, setModalStep] = useState<'input' | 'loading' | 'review'>('input')
   const [selectedCostume, setSelectedCostume] = useState<string>(hkDown)
   const [generatedSprites, setGeneratedSprites] = useState<{ front: string, back: string, left: string, right: string } | null>(null)
   const [answers, setAnswers] = useState<UserAnswers>({})
+  const [learningMaterial, setLearningMaterial] = useState('')
+  const [ageLevel, setAgeLevel] = useState<AgeLevel>('6-7')
   const keysPressed = useInputController()
 
   // Game Loop
@@ -206,7 +211,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
 
   // Easter Egg & Custom Content Logic
   const isHelloKitty = characterType === 'hellokitty';
-  const isCustom = characterType === 'custom' && (generatedSprites || answers.generatedSprites);
+  // const isCustom = characterType === 'custom' && (generatedSprites || answers.generatedSprites);
   
   const showVisuals = activeSprite?.id === 'character' && modalStep === 'review';
 
@@ -295,7 +300,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
           <Sprite key={sprite.id} x={sprite.x} y={sprite.y} color={sprite.color} size={sprite.size || SPRITE_SIZE} image={sprite.image} />
         ))}
 
-        {/* Portal Modal (no text input) */}
+        {/* Portal Modal with Learning Material Upload */}
         {activeMenu && activeSprite?.isPortal && (
           <div style={{
             position: 'fixed',
@@ -314,13 +319,113 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
               padding: '32px',
               borderRadius: '16px',
               textAlign: 'center',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+              maxWidth: '600px',
+              width: '90%'
             }}>
-              <h2 style={{ margin: '0 0 16px', color: '#333' }}>🌀 Portal</h2>
-              <p style={{ color: '#666', marginBottom: '20px' }}>Ready to enter your adventure?</p>
+              <h2 style={{ margin: '0 0 16px', color: '#333' }}>🌀 Upload Your Study Material</h2>
+              <p style={{ color: '#666', marginBottom: '20px' }}>
+                Paste your notes or upload a text file. This will be used to generate quiz questions during battles!
+              </p>
+
+              {/* Text Area for pasting notes */}
+              <textarea
+                value={learningMaterial}
+                onChange={(e) => setLearningMaterial(e.target.value)}
+                placeholder="Paste your study notes here... (e.g., 'The water cycle consists of evaporation, condensation, and precipitation...')"
+                style={{
+                  width: '100%',
+                  height: '150px',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '2px solid #ddd',
+                  fontSize: '14px',
+                  resize: 'vertical',
+                  marginBottom: '16px',
+                  fontFamily: 'inherit'
+                }}
+              />
+
+              {/* File Upload */}
+              <div style={{ marginBottom: '20px' }}>
+                <input
+                  type="file"
+                  accept=".txt,.md"
+                  id="fileUpload"
+                  style={{ display: 'none' }}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        const content = event.target?.result as string;
+                        setLearningMaterial(prev => prev + (prev ? '\n\n' : '') + content);
+                      };
+                      reader.readAsText(file);
+                    }
+                  }}
+                />
+                <label
+                  htmlFor="fileUpload"
+                  style={{
+                    padding: '10px 20px',
+                    backgroundColor: '#eee',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    color: '#333'
+                  }}
+                >
+                  📁 Upload Text File
+                </label>
+              </div>
+
+              {/* Character count */}
+              <p style={{ color: '#999', fontSize: '12px', marginBottom: '16px' }}>
+                {learningMaterial.length} characters
+              </p>
+
+              {/* Age Level Selector */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{
+                  display: 'block',
+                  color: '#333',
+                  fontWeight: 'bold',
+                  marginBottom: '8px',
+                  fontSize: '14px'
+                }}>
+                  🎯 Question Difficulty Level
+                </label>
+                <select
+                  value={ageLevel}
+                  onChange={(e) => setAgeLevel(e.target.value as AgeLevel)}
+                  style={{
+                    padding: '10px 16px',
+                    borderRadius: '8px',
+                    border: '2px solid #ddd',
+                    fontSize: '14px',
+                    backgroundColor: 'white',
+                    cursor: 'pointer',
+                    minWidth: '200px'
+                  }}
+                >
+                  {AGE_LEVELS.map(level => (
+                    <option key={level} value={level}>
+                      Age {level} years
+                    </option>
+                  ))}
+                </select>
+                <p style={{ color: '#888', fontSize: '11px', marginTop: '6px' }}>
+                  Choose based on the learner's age for appropriate vocabulary
+                </p>
+              </div>
+
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                 <button
-                  onClick={() => handleClose(activeSprite)}
+                  onClick={() => {
+                    handleClose(activeSprite);
+                    setLearningMaterial('');
+                  }}
                   style={{
                     padding: '12px 24px',
                     backgroundColor: '#666',
@@ -334,15 +439,16 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                   Close
                 </button>
                 <button
-                  onClick={() => onEnterPortal?.(answers)}
+                  onClick={() => onEnterPortal?.({ ...answers, learningMaterial, ageLevel })}
+                  disabled={!learningMaterial.trim()}
                   style={{
                     padding: '12px 24px',
-                    backgroundColor: activeSprite.color,
+                    backgroundColor: learningMaterial.trim() ? activeSprite.color : '#ccc',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',
                     fontSize: '16px',
-                    cursor: 'pointer',
+                    cursor: learningMaterial.trim() ? 'pointer' : 'not-allowed',
                     fontWeight: 'bold'
                   }}
                 >
