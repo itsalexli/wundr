@@ -222,6 +222,7 @@ export function DictationButton({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        marginTop: '15px',
         transition: 'background-color 0.2s',
         animation: isListening ? 'dictation-pulse 1.5s infinite' : 'none',
         padding: 0,
