@@ -102,6 +102,14 @@ export const backgrounds: BackgroundImage[] = [
             { x: 0.6, y: 0.6, width: 0.3, height: 0.3 }  // Right path section
         ]
     },
+    { 
+        id: "bg21", 
+        filename: "city_toronto.png", 
+        tags: ["toronto", "uoft", "hackathon", "uofthacks", "university", "city", "building", "skyline", "urban", "modern"],
+        spawnZones: [
+            { x: 0.1, y: 0.5, width: 0.8, height: 0.4 } // General street/ground area
+        ]
+    },
 ];
 
 // Default fallback background if matching fails

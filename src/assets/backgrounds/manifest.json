@@ -118,5 +118,22 @@
       "fun",
       "whimsical"
     ]
+  },
+  {
+    "id": "bg21",
+    "title": "Toronto City",
+    "filename": "city_toronto.png",
+    "tags": [
+      "toronto",
+      "uoft",
+      "hackathon",
+      "uofthacks",
+      "university",
+      "city",
+      "building",
+      "skyline",
+      "urban",
+      "modern"
+    ]
   }
 ]
