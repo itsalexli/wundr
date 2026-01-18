@@ -16,8 +16,6 @@ import portalGif from '../assets/choosingpage/portal.gif';
 import stand1 from '../assets/choosingpage/stands/STAND 1.png';
 import stand2 from '../assets/choosingpage/stands/STAND 2.png';
 import stand3 from '../assets/choosingpage/stands/STAND 3.png';
-import soundDesignerBg from '../assets/choosingpage/modalBackgrounds/sound designer.png';
-import backgroundDesignerBg from '../assets/choosingpage/modalBackgrounds/background designer.png';
 
 export const staticSprites: StaticSprite[] = [
   {
