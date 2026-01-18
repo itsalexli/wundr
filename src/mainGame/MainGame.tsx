@@ -114,6 +114,20 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
     }
   }, [userAnswers?.background, userAnswers?.backgroundId])
 
+  // Music Playback Effect
+  useEffect(() => {
+    if (userAnswers?.music) {
+        const audio = new Audio(userAnswers.music);
+        audio.loop = true;
+        audio.play().catch(e => console.error("MainGame Music Error:", e));
+        
+        return () => {
+            audio.pause();
+            audio.currentTime = 0;
+        };
+    }
+  }, [userAnswers?.music]);
+
   // Game Loop
   useEffect(() => {
     if (activeMenu || isInventoryOpen) return; // Pause game loop when menu/inventory is open
