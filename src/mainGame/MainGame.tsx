@@ -7,6 +7,7 @@ import type { UserAnswers } from '../choosingGame/MainChoosingGame'
 import { BattleScreen } from './BattleScreen'
 import { matchBackground, type BackgroundImage } from './backgroundMatcher'
 import defeatedCountImg from '../assets/defeatedCount.png'
+import backToChoicesImg from '../assets/backtochoices.png'
 
 // Hello Kitty Assets
 import hkDown from '../assets/hellokitty/hk-down.png'
@@ -306,18 +307,20 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
                 position: 'absolute',
                 top: '16px',
                 left: '16px',
-                padding: '10px 20px',
-                backgroundColor: '#333',
-                color: 'white',
+                width: '250px',
+                height: '75px',
+                backgroundImage: `url(${backToChoicesImg})`,
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
+                backgroundColor: 'transparent',
                 border: 'none',
                 borderRadius: '8px',
-                fontSize: '14px',
                 cursor: 'pointer',
                 zIndex: 1000
               }}
-            >
-              ← Back to Choices
-            </button>
+              title="Back to Choices"
+            />
           )}
 
           {/* Inventory Button */}
