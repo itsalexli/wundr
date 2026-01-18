@@ -426,8 +426,8 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                 placeholder="Paste your study notes here..."
                 style={{
                   position: 'absolute',
-                  left: '523px',
-                  top: '250px',
+                  left: '98px',
+                  top: '118px',
                   width: '425px',
                   height: '127px',
                   padding: '12px',
@@ -465,8 +465,8 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                 htmlFor="fileUpload"
                 style={{
                   position: 'absolute',
-                  left: '200px',
-                  top: '300px',
+                  left: '230px',
+                  top: '252px',
                   cursor: 'pointer'
                 }}
               >
@@ -483,8 +483,8 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
               {/* Age Level Selector */}
               <div style={{
                 position: 'absolute',
-                left: '220px',
-                top: '380px',
+                left: '253px',
+                top: '413px',
               }}>
                 <select
                   value={ageLevel}
@@ -542,7 +542,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                   disabled={!learningMaterial.trim()}
                   style={{
                     position: 'absolute',
-                    left: '200px',
+                    left: '228px',
                     top: '420px',
                     background: 'none',
                     border: 'none',
