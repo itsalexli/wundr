@@ -76,10 +76,16 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
   const [learningMaterial, setLearningMaterial] = useState("");
   const [ageLevel, setAgeLevel] = useState<AgeLevel>("6-7");
   const [isDrawing, setIsDrawing] = useState(false);
-  // Refactor isGenerating to track WHICH type is generating to position the loader correctly
-  const [generatingType, setGeneratingType] = useState<
-    "character" | "background" | "music" | null
-  >(null);
+  // Refactor: Track multiple generations in parallel
+  const [generatingStates, setGeneratingStates] = useState<{
+    character: boolean;
+    background: boolean;
+    music: boolean;
+  }>({
+    character: false,
+    background: false,
+    music: false,
+  });
   const [recommendedTracks, setRecommendedTracks] = useState<string[]>([]);
   const [selectedTrack, setSelectedTrack] = useState<string | null>(null);
   const [playingTrack, setPlayingTrack] = useState<HTMLAudioElement | null>(null);
@@ -113,8 +119,11 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
           // OR if we want that behavior. The user didn't specify resetting on re-entry,
           // but usually you want to start fresh if you enter the portal again.
           // However, if we preserve it for the checkmark, we should be careful.
-          // Let's reset ONLY if we don't have a pending checkmark awaiting review.
-          // Actually, standard behavior: Entering portal = new attempt.
+          
+          // UPDATED: User wants to keep generations active in parallel. 
+          // We do NOT clear state on re-entry. New submissions will overwrite independently.
+          
+          /* 
           if (sprite.id === "character") {
             setGeneratedSprites(null);
           } else if (sprite.id === "music") {
@@ -125,6 +134,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                 setPlayingTrack(null);
             }
           }
+          */
         }
       }
     };
@@ -195,7 +205,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
           lowerAnswer.includes("kitty")
         ) {
           handleClose(sprite);
-          setGeneratingType("character");
+          setGeneratingStates(prev => ({ ...prev, character: true }));
 
           // Fake loading delay then "generate" the HK sprites
           setTimeout(() => {
@@ -206,7 +216,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
               right: hkRight,
             });
             setSelectedCostume(hkDown);
-            setGeneratingType(null);
+            setGeneratingStates(prev => ({ ...prev, character: false }));
           }, 2000);
           return;
         }
@@ -214,7 +224,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
         // Nano Banana / Gemini Flow - BACKGROUND GENERATION
         // Close modal immediately and start generation
         handleClose(sprite);
-        setGeneratingType("character");
+        setGeneratingStates(prev => ({ ...prev, character: true }));
 
         // Use a detached promise for background work
         fetch("/api/generate", {
@@ -244,7 +254,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
             alert("Something went wrong contacting Nano Banana!");
           })
           .finally(() => {
-            setGeneratingType(null);
+            setGeneratingStates(prev => ({ ...prev, character: false }));
           });
 
         return;
@@ -258,7 +268,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
     } else if (sprite.id === "background") {
        if (modalStep === "input") {
          handleClose(sprite);
-         setGeneratingType("background");
+         setGeneratingStates(prev => ({ ...prev, background: true }));
          
          matchBackground(answer)
             .then((bg) => {
@@ -269,7 +279,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                 alert("Failed to generate background.");
             })
             .finally(() => {
-                setGeneratingType(null);
+                setGeneratingStates(prev => ({ ...prev, background: false }));
             });
          return;
        }
@@ -277,7 +287,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
     } else if (sprite.id === "music") {
         if (modalStep === "input") {
             handleClose(sprite);
-            setGeneratingType("music");
+            setGeneratingStates(prev => ({ ...prev, music: true }));
 
             fetch("/api/recommend-music", {
                 method: "POST",
@@ -300,7 +310,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                 alert("Something went wrong contacting Nano Banana Music!");
             })
             .finally(() => {
-                setGeneratingType(null);
+                setGeneratingStates(prev => ({ ...prev, music: false }));
             });
             return;
         }
@@ -371,7 +381,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
     const charSprite = staticSprites.find((s) => s.id === "character");
     if (charSprite) handleClose(charSprite);
 
-    setGeneratingType("character");
+    setGeneratingStates(prev => ({ ...prev, character: true }));
 
     // Detached fetch for background generation
     fetch("/api/generate", {
@@ -403,7 +413,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
         alert("Network error. Please try again.");
       })
       .finally(() => {
-        setGeneratingType(null);
+        setGeneratingStates(prev => ({ ...prev, character: false }));
       });
   };
 
@@ -607,11 +617,11 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
     characterType === "custom" ? answers.generatedSprites : null;
 
   // CONSTANTS for positioning
-  // Character Checkmark: center - 40px
-  // Background Checkmark: center + 40px
-  // We use fixed absolute positions for consistency
-  const CHAR_POS_LEFT = "calc(50% - 40px)";
-  const BG_POS_LEFT = "calc(50% + 40px)";
+  // CONSTANTS for positioning
+  // Layout: Blue/Character (Left) - Red/Background (Center) - Purple/Music (Right)
+  const CHAR_POS_LEFT = "calc(50% - 100px)"; 
+  const BG_POS_LEFT = "calc(50%)"; 
+  const MUSIC_POS_LEFT = "calc(50% + 100px)";
 
   return (
     <div
@@ -989,7 +999,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
         )}
 
         {/* Checkmark Notification for Ready Characters */}
-        {generatedSprites && !activeMenu && generatingType !== "character" && (
+        {generatedSprites && !activeMenu && !generatingStates.character && (
           <button
             onClick={() => {
               const charSprite = staticSprites.find(
@@ -1008,7 +1018,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
               transform: "translateX(-50%)",
               width: "60px",
               height: "60px",
-              backgroundColor: "#4CAF50",
+              backgroundColor: "#2196F3", // Blue for character
               border: "4px solid white",
               color: "white",
               fontSize: "32px",
@@ -1029,7 +1039,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
         )}
 
         {/* Checkmark Notification for Ready Music */}
-        {recommendedTracks.length > 0 && !activeMenu && generatingType !== "music" && (
+        {recommendedTracks.length > 0 && !activeMenu && !generatingStates.music && (
           <button
             onClick={() => {
               const musicSprite = staticSprites.find(
@@ -1042,8 +1052,8 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
             }}
             style={{
               position: "absolute",
-              left: CHAR_POS_LEFT, 
-              bottom: "100px",
+              left: MUSIC_POS_LEFT, 
+              bottom: "30px",
               transform: "translateX(-50%)",
               width: "60px",
               height: "60px",
@@ -1070,7 +1080,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
         {/* Checkmark for Background - Similar to Character */}
         {previewBackground &&
           !activeMenu &&
-          generatingType !== "background" && (
+          !generatingStates.background && (
             <button
               onClick={() => {
                 // Show background overlay
@@ -1083,7 +1093,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                 transform: "translateX(-50%)",
                 width: "60px",
                 height: "60px",
-                backgroundColor: "#2196F3", // Blue for background
+                backgroundColor: "#F44336", // Red for background
                 border: "4px solid white",
                 color: "white",
                 fontSize: "32px",
@@ -1178,53 +1188,101 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
           </div>
         )}
 
-        {/* Loading Pixel Animation - Positioned dynamically! */}
-        {generatingType && !activeMenu && (
+        {/* Loading Pixel Animations - Positioned dynamically! */}
+        
+        {/* Character Loader */}
+        {generatingStates.character && !activeMenu && (
           <div
             style={{
               position: "absolute",
               bottom: "40px",
-              // Dynamically align left position based on WHAT is generating
-              left:
-                generatingType === "character" ? CHAR_POS_LEFT : BG_POS_LEFT,
+              left: CHAR_POS_LEFT,
               transform: "translateX(-50%)",
               width: "40px",
               height: "40px",
               zIndex: 100,
             }}
           >
-            {/* Main pixelated spinner/bouncer using simple CSS divs */}
             <div
-              style={{
-                width: "20px",
-                height: "20px",
-                backgroundColor: "white",
-                boxShadow: "4px 4px 0px rgba(0,0,0,0.5)",
-                animation: "spin 1s infinite steps(4)", // Steps for jerky pixel motion
-                margin: "auto",
-              }}
+               style={{
+                 width: "20px",
+                 height: "20px",
+                 backgroundColor: "white",
+                 boxShadow: "4px 4px 0px rgba(0,0,0,0.5)",
+                 animation: "spin 1s infinite steps(4)",
+                 margin: "auto",
+               }}
             />
-            <style>{`
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                 `}</style>
-            <div
-              style={{
-                textAlign: "center",
-                color: "white",
-                fontFamily: "monospace",
-                fontSize: "10px",
-                marginTop: "8px",
-                textShadow: "2px 2px 0px #000",
-                whiteSpace: "nowrap",
-              }}
-            >
+            <div style={{ textAlign: "center", color: "white", fontFamily: "monospace", fontSize: "10px", marginTop: "8px", textShadow: "2px 2px 0px #000", whiteSpace: "nowrap" }}>
               GENERATING...
             </div>
           </div>
         )}
+
+        {/* Music Loader */}
+        {generatingStates.music && !activeMenu && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: "40px",
+              left: MUSIC_POS_LEFT,
+              transform: "translateX(-50%)",
+              width: "40px",
+              height: "40px",
+              zIndex: 100,
+            }}
+          >
+            <div
+               style={{
+                 width: "20px",
+                 height: "20px",
+                 backgroundColor: "white",
+                 boxShadow: "4px 4px 0px rgba(0,0,0,0.5)",
+                 animation: "spin 1s infinite steps(4)",
+                 margin: "auto",
+               }}
+            />
+            <div style={{ textAlign: "center", color: "white", fontFamily: "monospace", fontSize: "10px", marginTop: "8px", textShadow: "2px 2px 0px #000", whiteSpace: "nowrap" }}>
+              GENERATING...
+            </div>
+          </div>
+        )}
+
+        {/* Background Loader */}
+        {generatingStates.background && !activeMenu && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: "40px",
+              left: BG_POS_LEFT,
+              transform: "translateX(-50%)",
+              width: "40px",
+              height: "40px",
+              zIndex: 100,
+            }}
+          >
+            <div
+               style={{
+                 width: "20px",
+                 height: "20px",
+                 backgroundColor: "white",
+                 boxShadow: "4px 4px 0px rgba(0,0,0,0.5)",
+                 animation: "spin 1s infinite steps(4)",
+                 margin: "auto",
+               }}
+            />
+            <div style={{ textAlign: "center", color: "white", fontFamily: "monospace", fontSize: "10px", marginTop: "8px", textShadow: "2px 2px 0px #000", whiteSpace: "nowrap" }}>
+              GENERATING...
+            </div>
+          </div>
+        )}
+        
+        <style>{`
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+         `}</style>
       </div>
     </div>
   );
