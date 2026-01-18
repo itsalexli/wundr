@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { SPRITE_SIZE, type StaticSprite } from './gameConfig';
+import enemy1Img from '../assets/sprites/enemy1.png';
+import enemy2Img from '../assets/sprites/enemy2.png';
+import enemy3Img from '../assets/sprites/enemy3.png';
+import enemy4Img from '../assets/sprites/enemy4.png';
 import { QuestionScreen } from './QuestionScreen';
 import { initializeQuestionBank, getNextQuestion, recordResult, isQuestionBankReady, type AgeLevel } from './questionBank';
 import type { Question } from './questionGenerator';
@@ -27,7 +31,11 @@ import oceanSunsetBeachBg from '../assets/battleBackgrounds/ocean_sunset_beach.p
 import snowyMountainPeakBg from '../assets/battleBackgrounds/snowy_mountain_peak.png'
 import spaceNebulaBg from '../assets/battleBackgrounds/space_nebula.png'
 import sunnyMeadowClearingBg from '../assets/battleBackgrounds/sunny_meadow_clearing.png'
-import emberfiendImg from '../assets/emberfiend.png'
+import vinebitBattleImg from '../assets/vinebitbattle.png'
+import bonecasterBattleImg from '../assets/bonecasterbattle.png'
+import emberfiendBattleImg from '../assets/emberfiendbattle.png'
+import bubblegloomBattleImg from '../assets/bubblegloombattle.png'
+import runawayImg from '../assets/runaway.png'
 
 interface BattleScreenProps {
   enemy: StaticSprite;
@@ -80,6 +88,18 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   
   const [battleResult, setBattleResult] = useState<'win' | 'loss' | null>(null);
+
+  // Map enemy images to battle title images
+  const getBattleTitleImage = (enemyImage?: string) => {
+    if (!enemyImage) return emberfiendBattleImg; // Default fallback
+
+    if (enemyImage === enemy1Img) return bubblegloomBattleImg;
+    if (enemyImage === enemy2Img) return emberfiendBattleImg;
+    if (enemyImage === enemy3Img) return vinebitBattleImg;
+    if (enemyImage === enemy4Img) return bonecasterBattleImg;
+
+    return emberfiendBattleImg; // Default fallback
+  };
 
   // Map main game backgrounds to battle backgrounds
   const getBattleBackground = (mainBackground: BackgroundImage | null) => {
@@ -259,12 +279,12 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       color: 'white'
     }}>
       <img
-        src={emberfiendImg}
-        alt="Emberfiend"
+        src={getBattleTitleImage(enemy.image)}
+        alt={enemy.title || "Enemy"}
         style={{
-          marginBottom: '-40px',
-          marginTop: '100px',
-          width: '400px',
+          marginBottom: '-190px',
+          marginTop: '-20px',
+          width: '500px',
           height: 'auto',
           imageRendering: 'pixelated'
         }}
@@ -464,17 +484,19 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
           position: 'absolute',
           top: '20px',
           right: '20px',
-          padding: '10px 20px',
-          fontSize: '16px',
-          backgroundColor: '#ff4444',
-          color: 'white',
+          width: '80px',
+          height: '80px',
+          backgroundImage: `url(${runawayImg})`,
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          backgroundColor: 'transparent',
           border: 'none',
           borderRadius: '8px',
           cursor: 'pointer',
         }}
-      >
-        Run Away
-      </button>
+        title="Run Away"
+      />
 
       {/* Inventory Button */}
       <button
