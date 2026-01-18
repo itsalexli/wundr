@@ -126,7 +126,7 @@ export function PromptModal({
         },
         leftPane: {
             width: '45%',
-            backgroundColor: 'black',
+            backgroundColor: 'transparent',
             height: '100%',
             display: 'flex',
             alignItems: 'center',
