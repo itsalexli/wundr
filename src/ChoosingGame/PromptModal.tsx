@@ -34,6 +34,8 @@ export interface PromptModalProps {
     /** Optional custom style for the textarea itself */
     /** Optional custom style for the textarea itself */
     textareaStyle?: React.CSSProperties;
+    /** Optional to hide the input area (e.g. for review mode) */
+    hideInput?: boolean;
     /** Optional image for the close button */
     closeButtonImage?: string;
     /** Optional custom style for the close button */
@@ -58,6 +60,7 @@ export function PromptModal({
     textareaStyle,
     closeButtonImage,
     closeButtonStyle,
+    hideInput = false,
 }: PromptModalProps) {
     const [answer, setAnswer] = useState('');
     const [answerBeforeDictation, setAnswerBeforeDictation] = useState('');
@@ -234,33 +237,35 @@ export function PromptModal({
 
             {/* Input Wrapper */}
             <div style={styles.inputWrapper}>
-                <div style={styles.inputContainer}>
-                    <textarea
-                        className="prompt-modal-textarea"
-                        style={styles.textarea}
-                        value={answer}
-                        onChange={handleInputChange}
-                        onKeyDown={handleKeyDown}
-                        placeholder={placeholder}
-                        autoFocus
-                        disabled={isLoading}
-                    />
-                </div>
+                {!hideInput && (
+                    <div style={styles.inputContainer}>
+                        <textarea
+                            className="prompt-modal-textarea"
+                            style={styles.textarea}
+                            value={answer}
+                            onChange={handleInputChange}
+                            onKeyDown={handleKeyDown}
+                            placeholder={placeholder}
+                            autoFocus
+                            disabled={isLoading}
+                        />
+                    </div>
+                )}
 
                 {/* Submit Button and Dictation Tool Row */}
                 <div style={styles.submitRow}>
                     <button style={styles.submitButton} onClick={handleSubmit} disabled={isLoading}>
-                        {isLoading ? 'Loading...' : (
-                            <img
-                                src={submitButtonImg}
-                                alt="Submit"
-                                style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'contain'
-                                }}
-                            />
-                        )}
+                    {isLoading ? 'Loading...' : (
+                        <img
+                            src={submitButtonImg}
+                            alt="Submit"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'contain'
+                            }}
+                        />
+                    )}
                     </button>
                     <div style={styles.dictationContainer}>
                         <DictationButton
