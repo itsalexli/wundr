@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { SPRITE_SIZE, type StaticSprite } from './gameConfig';
-import fillerImage from '../assets/filler-image.jpg';
 import { QuestionScreen } from './QuestionScreen';
 import { initializeQuestionBank, getNextQuestion, recordResult, isQuestionBankReady, type AgeLevel } from './questionBank';
 import type { Question } from './questionGenerator';
+import type { BackgroundImage } from './backgroundMatcher';
 import { Inventory } from './Inventory';
 import health0 from '../assets/healthbar/0.png'
 import health25 from '../assets/healthbar/25.png'
@@ -12,7 +12,21 @@ import health75 from '../assets/healthbar/75.png'
 import health100 from '../assets/healthbar/100.png'
 import victoryImg from '../assets/screenPopups/victory.png'
 import defeatImg from '../assets/screenPopups/defeat.png'
-import bagImg from '../assets/bag.png'
+import fireballImg from '../assets/buttons/fireballButton.png'
+import iceShardImg from '../assets/buttons/iceShardButton.png'
+import lightningImg from '../assets/buttons/lightingButton.png'
+import boulderImg from '../assets/buttons/boulderButton.png'
+import candyLandBg from '../assets/battleBackgrounds/candy_land.png'
+import cherryBlossomGardenBg from '../assets/battleBackgrounds/cheery_blossom_garden.png'
+import cityTorontoBg from '../assets/battleBackgrounds/city_toronto.png'
+import enchantedGardenBg from '../assets/battleBackgrounds/enchanted_garden.png'
+import tropicalJungleBg from '../assets/battleBackgrounds/tropical_jungle.png'
+import desertSandDunesBg from '../assets/battleBackgrounds/desert_sand_dunes.png'
+import rainbowFieldBg from '../assets/battleBackgrounds/rainbow_field.png'
+import oceanSunsetBeachBg from '../assets/battleBackgrounds/ocean_sunset_beach.png'
+import snowyMountainPeakBg from '../assets/battleBackgrounds/snowy_mountain_peak.png'
+import spaceNebulaBg from '../assets/battleBackgrounds/space_nebula.png'
+import sunnyMeadowClearingBg from '../assets/battleBackgrounds/sunny_meadow_clearing.png'
 
 interface BattleScreenProps {
   enemy: StaticSprite;
@@ -24,6 +38,7 @@ interface BattleScreenProps {
   setPlayerHP: React.Dispatch<React.SetStateAction<number>>;
   onUseItem: (item: string, index: number) => void;
   playerImage?: string;
+  background?: BackgroundImage | null;
 }
 
 interface Projectile {
@@ -43,14 +58,15 @@ const getHealthImage = (hp: number) => {
   return health0;
 }
 
-export const BattleScreen: React.FC<BattleScreenProps> = ({ 
-  enemy, learningMaterial, ageLevel = '6-7', 
-  onClose, 
-  inventoryItems = [], 
-  playerHP, 
-  setPlayerHP, 
+export const BattleScreen: React.FC<BattleScreenProps> = ({
+  enemy, learningMaterial, ageLevel = '6-7',
+  onClose,
+  inventoryItems = [],
+  playerHP,
+  setPlayerHP,
   onUseItem,
-  playerImage
+  playerImage,
+  background
 }) => {
   const [activeSpell, setActiveSpell] = useState<string | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
@@ -63,6 +79,39 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   
   const [battleResult, setBattleResult] = useState<'win' | 'loss' | null>(null);
+
+  // Map main game backgrounds to battle backgrounds
+  const getBattleBackground = (mainBackground: BackgroundImage | null) => {
+    if (!mainBackground) return sunnyMeadowClearingBg; // Default to sunny meadow
+
+    const filename = mainBackground.filename;
+    switch (filename) {
+      case 'sunny_meadow_clearing.png':
+        return sunnyMeadowClearingBg; // Bright, happy backgrounds
+      case 'rainbow_field.png':
+        return rainbowFieldBg; // Bright, happy backgrounds
+      case 'candy_land.png':
+        return candyLandBg; // Bright, happy backgrounds
+      case 'ocean_sunset_beach.png':
+        return oceanSunsetBeachBg; // Ocean/beach themes
+      case 'tropical_jungle.png':
+        return tropicalJungleBg; // Tropical/ocean themes
+      case 'snowy_mountain_peak.png':
+        return snowyMountainPeakBg; // Winter/mountain themes
+      case 'city_toronto.png':
+        return cityTorontoBg; // Urban themes
+      case 'cherry_blossom_garden.png':
+        return cherryBlossomGardenBg; // Garden/flower themes
+      case 'enchanted_garden.png':
+        return enchantedGardenBg; // Enchanted/magical themes
+      case 'desert_sand_dunes.png':
+        return desertSandDunesBg; // Desert themes
+      case 'space_nebula.png':
+        return spaceNebulaBg; // Space themes
+      default:
+        return sunnyMeadowClearingBg; // Default fallback to sunny meadow
+    }
+  };
   const [isBankReady, setIsBankReady] = useState(false);
 
   // Initialize question bank on mount
@@ -109,33 +158,18 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
         .map(p => {
           if (p.stopped) return p;
 
-          let nextX = p.color === 'purple' ? p.x - 10 : p.x + 10;
+          let nextX = p.x + 10;
           let stopped = false;
 
           // Check collision with enemy
-          if (enemyRect && nextX + 10 >= enemyRect.left && p.color !== 'purple') {
+          if (enemyRect && nextX + 10 >= enemyRect.left) {
             stopped = true;
             hitOccurred = true;
           }
 
-          // Check collision with player (only for enemy projectiles)
-          if (p.color === 'purple' && nextX <= window.innerWidth * 0.2) {
-             stopped = true;
-             // Player hurt logic handled here instead of immediate timeout
-             setIsPlayerHurt(true);
-             setPlayerHP(prev => {
-               if (prev <= 25) return 0;
-               if (prev <= 50) return 25;
-               if (prev <= 75) return 50;
-               if (prev <= 100) return 75;
-               return prev;
-             });
-             setTimeout(() => setIsPlayerHurt(false), 200);
-          }
-
           return { ...p, x: nextX, stopped };
-        }) 
-        .filter(p => !p.stopped && p.x < window.innerWidth && p.x > 0);
+        })
+        .filter(p => !p.stopped && p.x < window.innerWidth);
 
         if (hitOccurred) {
           // Reduce enemy HP by 25 (4 hits to kill) instead of arbitrary amount
@@ -174,21 +208,25 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
 
       const newProjectile: Projectile = {
         id: Date.now(),
-        x: window.innerWidth * 0.2,
+        x: window.innerWidth * 0.1 + 250, // Start from right edge of player sprite
         y: window.innerHeight / 2,
         color
       };
 
       setProjectiles(prev => [...prev, newProjectile]);
     } else if (!correct) {
-      // Enemy shoots a projectile at the player
-      const enemyProjectile: Projectile = {
-        id: Date.now(),
-        x: window.innerWidth * 0.8, // Start from enemy side (approx)
-        y: window.innerHeight / 2,
-        color: 'purple' // Enemy projectile color
-      };
-      setProjectiles(prev => [...prev, enemyProjectile]);
+      setTimeout(() => {
+        setIsPlayerHurt(true);
+        // Damage player by one tier
+        setPlayerHP(prev => {
+          if (prev <= 25) return 0;
+          if (prev <= 50) return 25;
+          if (prev <= 75) return 50;
+          if (prev <= 100) return 75;
+          return prev;
+        });
+        setTimeout(() => setIsPlayerHurt(false), 200);
+      }, 300);
     }
   };
 
@@ -220,7 +258,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       left: 0,
       width: '100%',
       height: '100%',
-      backgroundImage: `url(${fillerImage})`,
+      backgroundImage: `url(${getBattleBackground(background || null)})`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundColor: 'rgba(0, 0, 0, 0.9)', // Fallback / Blend if needed
@@ -253,10 +291,11 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       <div style={{
         display: 'flex',
         width: '80%',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         alignItems: 'center',
+        gap: '450px',
         flex: 1, // Take up available vertical space to center content
-        marginBottom: '50px'
+        marginBottom: '-180px'
       }}>
         {/* Player Side - Left */}
         <div style={{
@@ -377,32 +416,47 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
 
       <div style={{
         display: 'flex',
-        gap: '20px',
+        gap: '5px',
         marginTop: 'auto',
-        marginBottom: '30px',
+        marginBottom: '20px',
         width: '90%',
         justifyContent: 'center'
       }}>
-        {['Fireball', 'Ice Shard', 'Lightning', 'Boulder'].map((spell) => (
-          <button
-            key={spell}
-            onClick={() => handleSpellClick(spell)}
-            disabled={!isBankReady && !!learningMaterial}
-            style={{
-              padding: '15px 30px',
-              fontSize: '18px',
-              backgroundColor: (!isBankReady && learningMaterial) ? '#999' : '#4a90e2',
-              color: 'white',
-              border: '2px solid white',
-              borderRadius: '8px',
-              cursor: (!isBankReady && learningMaterial) ? 'wait' : 'pointer',
-              flex: 1,
-              maxWidth: '200px'
-            }}
-          >
-            {spell}
-          </button>
-        ))}
+        {['Fireball', 'Ice Shard', 'Lightning', 'Boulder'].map((spell) => {
+          const getSpellButtonImage = (spellName: string) => {
+            switch (spellName) {
+              case 'Fireball': return fireballImg;
+              case 'Ice Shard': return iceShardImg;
+              case 'Lightning': return lightningImg;
+              case 'Boulder': return boulderImg;
+              default: return fireballImg;
+            }
+          };
+
+          return (
+            <button
+              key={spell}
+              onClick={() => handleSpellClick(spell)}
+              disabled={!isBankReady && !!learningMaterial}
+              style={{
+                width: '300px',
+                height: '300px',
+                backgroundImage: `url(${getSpellButtonImage(spell)})`,
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
+                backgroundColor: 'transparent',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: (!isBankReady && learningMaterial) ? 'wait' : 'pointer',
+                opacity: (!isBankReady && learningMaterial) ? 0.5 : 1,
+                flex: 1,
+                maxWidth: '300px'
+              }}
+              title={spell}
+            />
+          );
+        })}
       </div>
 
       <button
@@ -432,12 +486,9 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
           left: '20px', // Moved to left side top to avoid conflict with run away
           width: '50px',
           height: '50px',
-          backgroundImage: `url(${bagImg})`,
-          backgroundSize: 'contain',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center',
-          backgroundColor: 'transparent',
-          border: 'none',
+          backgroundColor: '#8B4513',
+          border: '2px solid #D2691E',
+          borderRadius: '8px',
           cursor: 'pointer',
           zIndex: 1000
         }}

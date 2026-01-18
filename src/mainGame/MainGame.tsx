@@ -94,23 +94,21 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
         return;
     }
 
-    if (userAnswers?.background) {
-      triggerMatch();
-    }
-    
+    // Always trigger background matching (will use default if no user input)
+    triggerMatch();
+
     function triggerMatch() {
         setIsLoadingBg(true)
-        if (userAnswers?.background) {
-            matchBackground(userAnswers.background)
-                .then(matched => {
-                setBackground(matched)
-                setIsLoadingBg(false)
-                })
-                .catch(err => {
-                console.error('Background matching failed:', err)
-                setIsLoadingBg(false)
-                })
-        }
+        const backgroundInput = userAnswers?.background || ''; // Empty string triggers default background
+        matchBackground(backgroundInput)
+            .then(matched => {
+            setBackground(matched)
+            setIsLoadingBg(false)
+            })
+            .catch(err => {
+            console.error('Background matching failed:', err)
+            setIsLoadingBg(false)
+            })
     }
   }, [userAnswers?.background, userAnswers?.backgroundId])
 
@@ -261,6 +259,7 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
           playerHP={playerHP}
           setPlayerHP={setPlayerHP}
           onUseItem={handleUseItem}
+          background={background}
           playerImage={
             userAnswers.generatedSprites
               ? userAnswers.generatedSprites.right // Use right-facing sprite for battle

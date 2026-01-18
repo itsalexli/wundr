@@ -6,10 +6,6 @@ import { staticSprites, SPRITE_SIZE, type StaticSprite } from './gameConfig'
 import { PromptModal } from './PromptModal'
 import { AGE_LEVELS, type AgeLevel } from '../mainGame/questionBank'
 import { matchBackground, type BackgroundImage, getBackgroundPath } from '../mainGame/backgroundMatcher'
-import progressBar0 from '../assets/progressbar/progressBar0.png'
-import progressBar1 from '../assets/progressbar/progressBar1.png'
-import progressBar2 from '../assets/progressbar/progressBar2.png'
-import progressBar3 from '../assets/progressbar/progressBar3.png'
 import choosingBackground from '../assets/choosingpage/choosingBackground.png'
 import defaultLeftImg from '../assets/sprites/defaultleft.png'
 import defaultRightImg from '../assets/sprites/defaultright.png'
@@ -27,9 +23,6 @@ import uploadTextButtonImg from '../assets/portal/uploadTextButton.png'
 import enterPortalButtonImg from '../assets/portal/enterPortalButton.png'
 import rockImg from '../assets/rock.png'
 import DrawingCanvas from './DrawingCanvas';
-
-// Progress bar images array (0 = empty, 3 = full)
-const progressBarImages = [progressBar0, progressBar1, progressBar2, progressBar3];
 
 // Store user answers
 export interface UserAnswers {
@@ -929,19 +922,6 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
 
 
 
-        {/* Progress Bar - Dynamic based on answers submitted */}
-        <img
-          src={progressBarImages[Math.min(Object.keys(answers).length, 3)]}
-          alt={`Progress: ${Object.keys(answers).length}/3`}
-          style={{
-            position: 'absolute',
-            top: '45px',
-            left: '20px',
-            width: '200px',
-            zIndex: 50,
-            pointerEvents: 'none'
-          }}
-        />
       </div>
     </div>
   )
