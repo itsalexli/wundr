@@ -129,6 +129,88 @@ export default defineConfig({
             res.end(JSON.stringify({ error: message }));
           }
         });
+
+        // Music Recommendation Endpoint
+        server.middlewares.use('/api/recommend-music', async (req, res, next) => {
+          if (req.method !== 'POST') return next();
+
+          try {
+            const buffers = [];
+            for await (const chunk of req) {
+              buffers.push(chunk);
+            }
+            const body = JSON.parse(Buffer.concat(buffers).toString());
+            const { prompt } = body;
+
+            if (!prompt) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: 'Prompt required' }));
+              return;
+            }
+
+            console.log(`🎵 Nano Banana Music: Received prompt "${prompt}"`);
+
+            const apiKey = process.env.GEMINI_API_KEY;
+            if (!apiKey) {
+              res.statusCode = 500;
+              res.end(JSON.stringify({ error: 'Missing GEMINI_API_KEY in .env' }));
+              return;
+            }
+
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+            const geminiPrompt = `
+              Classify the following user request into exactly ONE of these three music categories: "Exciting", "Funny", "Scary".
+              
+              User Request: "${prompt}"
+              
+              Return ONLY the category name as a plain string. Do not include any explanation or punctuation.
+              Example output: Exciting
+            `;
+
+            const result = await model.generateContent(geminiPrompt);
+            const response = await result.response;
+            const category = response.text().trim();
+            
+            console.log(`🎵 Nano Banana Music: Classified as "${category}"`);
+
+            let musicFiles = [];
+            // Map category to filenames based on existing assets
+            // Assumes files are in src/assets/Music
+            // Existing files found: 
+            // Exciting.mp3, Exciting2.mp3, Exciting3.mp3
+            // Funny.mp3, Funny2.mp3, Funny3.mp3
+            // scary.mp3, scary2.mp3, scary3.mp3
+            
+            if (category.toLowerCase().includes('exciting')) {
+                musicFiles = ['Exciting.mp3', 'Exciting2.mp3', 'Exciting3.mp3'];
+            } else if (category.toLowerCase().includes('funny')) {
+                musicFiles = ['Funny.mp3', 'Funny2.mp3', 'Funny3.mp3'];
+            } else if (category.toLowerCase().includes('scary')) {
+                musicFiles = ['scary.mp3', 'scary2.mp3', 'scary3.mp3'];
+            } else {
+                // Default fallback if classification fails or is weird
+                musicFiles = ['Exciting.mp3', 'Exciting2.mp3', 'Exciting3.mp3'];
+            }
+
+            // Construct full paths for frontend usage
+            // Vite handles assets differently in dev/prod, but for now we point to src
+            const musicPaths = musicFiles.map(file => `/src/assets/Music/${file}`);
+
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ 
+              success: true, 
+              category: category,
+              tracks: musicPaths
+            }));
+
+          } catch (error: any) {
+            console.error('🎵 Nano Banana Music Error:', error);
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: error.message }));
+          }
+        });
       }
     }
   ],

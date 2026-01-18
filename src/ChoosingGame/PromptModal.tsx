@@ -44,6 +44,8 @@ export interface PromptModalProps {
     closeButtonStyle?: React.CSSProperties;
     /** Custom label for the submit button */
     submitLabel?: string;
+    /** Optional to hide the submit button */
+    hideSubmit?: boolean;
 }
 
 export function PromptModal({
@@ -67,6 +69,7 @@ export function PromptModal({
     onPaintClick,
     closeButtonStyle,
     submitLabel = 'Submit',
+    hideSubmit = false,
 }: PromptModalProps) {
     const [answer, setAnswer] = useState('');
     const [answerBeforeDictation, setAnswerBeforeDictation] = useState('');
@@ -255,21 +258,23 @@ export function PromptModal({
 
                 {/* Submit Button and Dictation Tool Row */}
                 <div style={styles.submitRow}>
-                    <button style={styles.submitButton} onClick={handleSubmit} disabled={isLoading}>
-                    {isLoading ? 'Loading...' : (
-                        submitLabel === 'Submit' || submitLabel === 'Confirm' ? (
-                            <img
-                                src={submitButtonImg}
-                                alt={submitLabel}
-                                style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    objectFit: 'contain'
-                                }}
-                            />
-                        ) : submitLabel
+                    {!hideSubmit && (
+                        <button style={styles.submitButton} onClick={handleSubmit} disabled={isLoading}>
+                        {isLoading ? 'Loading...' : (
+                            submitLabel === 'Submit' || submitLabel === 'Confirm' ? (
+                                <img
+                                    src={submitButtonImg}
+                                    alt={submitLabel}
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'contain'
+                                    }}
+                                />
+                            ) : submitLabel
+                        )}
+                        </button>
                     )}
-                    </button>
                     {!hideInput && (
                          <div style={styles.dictationContainer}>
                             <DictationButton

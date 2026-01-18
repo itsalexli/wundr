@@ -27,6 +27,7 @@ import backgroundDesignerBg from "../assets/choosingpage/modalBackgrounds/backgr
 import portalBackgroundImg from "../assets/portal/portalbackground.png";
 import uploadTextButtonImg from "../assets/portal/uploadTextButton.png";
 import enterPortalButtonImg from "../assets/portal/enterPortalButton.png";
+import audioOverlayBg from "../assets/audiooverlay.png";
 import DrawingCanvas from "./DrawingCanvas";
 
 // Store user answers
@@ -77,8 +78,12 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
   const [isDrawing, setIsDrawing] = useState(false);
   // Refactor isGenerating to track WHICH type is generating to position the loader correctly
   const [generatingType, setGeneratingType] = useState<
-    "character" | "background" | null
+    "character" | "background" | "music" | null
   >(null);
+  const [recommendedTracks, setRecommendedTracks] = useState<string[]>([]);
+  const [selectedTrack, setSelectedTrack] = useState<string | null>(null);
+  const [playingTrack, setPlayingTrack] = useState<HTMLAudioElement | null>(null);
+
   const keysPressed = useInputController();
 
   // Game Loop
@@ -112,6 +117,13 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
           // Actually, standard behavior: Entering portal = new attempt.
           if (sprite.id === "character") {
             setGeneratedSprites(null);
+          } else if (sprite.id === "music") {
+            setRecommendedTracks([]);
+            setSelectedTrack(null);
+            if (playingTrack) {
+                playingTrack.pause();
+                setPlayingTrack(null);
+            }
           }
         }
       }
@@ -241,25 +253,54 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
       if (modalStep === "loading") return; // Ignore clicks during loading
 
       // If modalStep === 'review', proceed to confirm/save
-    } else if (sprite.id === "background") {
-      // Special flow for background selection - Match immediately for preview
-      handleClose(sprite); // Close first to show animation on main screen
-      setGeneratingType("background");
+      // NO RETURN HERE - Fall through to save logic
+    } else if (sprite.id === "music") {
+        if (modalStep === "input") {
+            handleClose(sprite);
+            setGeneratingType("music");
 
-      // Run match and fake delay concurrently
-      Promise.all([
-        matchBackground(answer),
-        new Promise((resolve) => setTimeout(resolve, 2000)), // Fake 2s loading
-      ]).then(([matchedBg]) => {
-        setPreviewBackground(matchedBg);
-        setAnswers((prev) => ({
-          ...prev,
-          [sprite.id]: answer,
-          backgroundId: matchedBg.id,
-        }));
-        setGeneratingType(null);
-      });
-      return; // Return early so we don't do default handleClose again
+            fetch("/api/recommend-music", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ prompt: answer }),
+            })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success && data.tracks) {
+                    setRecommendedTracks(data.tracks);
+                    // Default to first track
+                    // setSelectedTrack(data.tracks[0]); 
+                } else {
+                    console.error("Music generation failed:", data.error);
+                    alert("Failed to find music. Try again!");
+                }
+            })
+            .catch((e) => {
+                console.error("API Error:", e);
+                alert("Something went wrong contacting Nano Banana Music!");
+            })
+            .finally(() => {
+                setGeneratingType(null);
+            });
+            return;
+        }
+
+        if (modalStep === "loading") return;
+
+        // If modalStep === 'review'
+        // Just fall through to save answer, but we need to ensure we save the selected track path, not just the prompt text (unless prompt text is what we want? No, we want the file).
+        // Actually, the default behavior below saves `answer`. But in review mode, `answer` passed from PromptModal might be the text input again?
+        // Wait, PromptModal `onSubmit` sends `answer` state.
+        // We should explicitly save `selectedTrack` if available.
+        if (selectedTrack) {
+             setAnswers((prev) => ({
+                ...prev,
+                music: selectedTrack, // Save the actual file path
+                [sprite.id]: selectedTrack // Also update the generic one if needed, or keep prompt? Let's just use music field.
+            }));
+             handleClose(sprite);
+             return;
+        }
     }
 
     // Save the answer based on sprite id
@@ -348,20 +389,49 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
   // const isCustom = characterType === 'custom' && (generatedSprites || answers.generatedSprites);
 
   const showVisuals =
-    activeSprite?.id === "character" && modalStep === "review";
+    (activeSprite?.id === "character" && modalStep === "review") ||
+    (activeSprite?.id === "music" && modalStep === "review");
+
+  const stopMusic = () => {
+    if (playingTrack) {
+        playingTrack.pause();
+        playingTrack.currentTime = 0;
+        setPlayingTrack(null);
+    }
+  };
+
+  const playMusic = (track: string) => {
+    stopMusic(); // Stop previous
+    const audio = new Audio(track);
+    audio.play().catch(e => console.error("Audio play error", e));
+    setPlayingTrack(audio);
+    
+    // Auto-stop when ended
+    audio.onended = () => setPlayingTrack(null);
+  }
+  
+  // Cleanup music on unmount
+  useEffect(() => {
+    return () => {
+        stopMusic();
+    };
+  }, []);
+
 
   const leftPaneContent = showVisuals ? (
-    <img
-      src={selectedCostume}
-      alt="Character Preview"
-      style={{
-        width: "80%",
-        height: "auto",
-        objectFit: "contain",
-        imageRendering: "pixelated",
-        marginLeft: "100px",
-      }}
-    />
+    activeSprite?.id === "character" ? (
+        <img
+        src={selectedCostume}
+        alt="Character Preview"
+        style={{
+            width: "80%",
+            height: "auto",
+            objectFit: "contain",
+            imageRendering: "pixelated",
+            marginLeft: "100px",
+        }}
+        />
+    ) : undefined
   ) : undefined;
 
   let costumes: string[] = [];
@@ -379,41 +449,132 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
   }
 
   const rightPaneContent = showVisuals ? (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(2, 1fr)",
-        gap: "16px",
-        marginBottom: "90px",
-        marginLeft: "90px",
-        justifyItems: "center",
-        width: "fit-content",
-        margin: "0 auto 24px auto",
-      }}
-    >
-      {costumes.map((costume, index) => (
-        <img
-          key={index}
-          src={costume}
-          alt={`Costume ${index}`}
-          style={{
-            width: "60px",
-            height: "60px",
-            objectFit: "contain",
-            cursor: "pointer",
-            border:
-              selectedCostume === costume
-                ? "2px solid #4a90d9"
-                : "2px solid transparent",
-            borderRadius: "8px",
-            padding: "4px",
-            backgroundColor: "rgba(255,255,255,0.1)",
-            imageRendering: "pixelated",
-          }}
-          onClick={() => setSelectedCostume(costume)}
-        />
-      ))}
-    </div>
+    activeSprite?.id === "character" ? (
+        <div
+        style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gap: "16px",
+            marginBottom: "90px",
+            marginLeft: "90px",
+            justifyItems: "center",
+            width: "fit-content",
+            margin: "0 auto 24px auto",
+        }}
+        >
+        {costumes.map((costume, index) => (
+            <img
+            key={index}
+            src={costume}
+            alt={`Costume ${index}`}
+            style={{
+                width: "60px",
+                height: "60px",
+                objectFit: "contain",
+                cursor: "pointer",
+                border:
+                selectedCostume === costume
+                    ? "2px solid #4a90d9"
+                    : "2px solid transparent",
+                borderRadius: "8px",
+                padding: "4px",
+                backgroundColor: "rgba(255,255,255,0.1)",
+                imageRendering: "pixelated",
+            }}
+            onClick={() => setSelectedCostume(costume)}
+            />
+        ))}
+        </div>
+    ) : activeSprite?.id === "music" ? (
+        <div style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "16px",
+            width: "80%",
+            marginLeft: '0px',
+            marginRight: '550px',
+            marginBottom: '250px',
+            marginTop: 'auto'
+        }}>
+            {recommendedTracks.map((track, index) => {
+                const trackName = track.split('/').pop() || `Track ${index + 1}`;
+                const isSelected = selectedTrack === track;
+                const isPlaying = playingTrack && playingTrack.src.endsWith(track.split('/').pop()!);
+
+                return (
+                    <div 
+                        key={index}
+                        onClick={() => setSelectedTrack(track)}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '12px',
+                            backgroundColor: isSelected ? 'rgba(74, 144, 217, 0.3)' : 'rgba(255, 255, 255, 0.1)',
+                            border: isSelected ? '2px solid #4a90d9' : '2px solid transparent',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            color: 'white',
+                            gap: '12px'
+                        }}
+                    >
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (isPlaying) stopMusic();
+                                else playMusic(track);
+                            }}
+                            style={{
+                                background: 'white',
+                                border: 'none',
+                                borderRadius: '50%',
+                                width: '32px',
+                                height: '32px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                cursor: 'pointer',
+                                fontSize: '16px'
+                            }}
+                        >
+                            {isPlaying ? '⏸️' : '▶️'}
+                        </button>
+                        <span style={{ flex: 1, textAlign: 'left', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {trackName}
+                        </span>
+                    </div>
+                );
+            })}
+            
+            {/* Custom Fixed Confirm Button */}
+            <button
+                disabled={!selectedTrack}
+                onClick={() => {
+                    if (selectedTrack) {
+                        // Stop preview
+                        stopMusic();
+                        
+                        // Submit
+                        handleSubmit(activeSprite!, selectedTrack);
+                    }
+                }}
+                style={{
+                    marginTop: 'auto', // Push to bottom if container is flex
+                    padding: '16px',
+                    backgroundColor: selectedTrack ? '#4a90d9' : 'gray',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    cursor: selectedTrack ? 'pointer' : 'not-allowed',
+                    width: '100%',
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.3)'
+                }}
+            >
+                Confirm Selection
+            </button>
+        </div>
+    ) : undefined
   ) : undefined;
 
   // Resolve the sprite to use for the player in the lobby
@@ -703,7 +864,11 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                     ? "92%"
                     : undefined
             }
-            layout={activeSprite.id === "character" ? "split" : "default"}
+            layout={
+                activeSprite.id === "character" || activeSprite.id === "music" 
+                    ? "split" 
+                    : "default"
+            }
             onInputChange={setCurrentInput}
             leftPaneContent={leftPaneContent}
             rightPaneContent={rightPaneContent}
@@ -728,14 +893,16 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                       zIndex: 10, // Ensure it appears above background
                     }
                   : activeSprite.id === "music"
-                    ? {
-                        position: "absolute",
-                        top: "285px",
-                        right: "225px",
-                        width: "85%", // Ensure it fits
-                        maxWidth: "250px", // Constrain width
-                        zIndex: 10, // Ensure it appears above background
-                      }
+                    ? modalStep === "review" 
+                        ? { display: 'none' } // Hide input in review mode
+                        : {
+                            position: "absolute",
+                            top: "285px",
+                            right: "225px",
+                            width: "85%", // Ensure it fits
+                            maxWidth: "250px", // Constrain width
+                            zIndex: 10, // Ensure it appears above background
+                        }
                     : undefined
             }
             onPaintClick={
@@ -749,7 +916,9 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                 : activeSprite.id === "background"
                   ? backgroundDesignerBg
                   : activeSprite.id === "music"
-                    ? soundDesignerBg
+                    ? modalStep === "review"
+                        ? audioOverlayBg
+                        : soundDesignerBg
                     : undefined
             }
             textareaStyle={
@@ -780,7 +949,11 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                     : undefined
             }
             hideInput={
-              activeSprite.id === "character" && modalStep === "review"
+              (activeSprite.id === "character" && modalStep === "review") ||
+              (activeSprite.id === "music" && modalStep === "review")
+            }
+            hideSubmit={
+              activeSprite.id === "music" && modalStep === "review"
             }
           />
         )}
@@ -825,6 +998,45 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
               zIndex: 100,
               imageRendering: "pixelated", // Hint to browser
               borderRadius: "0px", // Boxy for pixel look
+              animation: "popIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55)",
+            }}
+          >
+            ✓
+          </button>
+        )}
+
+        {/* Checkmark Notification for Ready Music */}
+        {recommendedTracks.length > 0 && !activeMenu && generatingType !== "music" && (
+          <button
+            onClick={() => {
+              const musicSprite = staticSprites.find(
+                (s) => s.id === "music",
+              );
+              if (musicSprite) {
+                setActiveMenu("music");
+                setModalStep("review");
+              }
+            }}
+            style={{
+              position: "absolute",
+              left: CHAR_POS_LEFT, 
+              bottom: "100px",
+              transform: "translateX(-50%)",
+              width: "60px",
+              height: "60px",
+              backgroundColor: "#9C27B0", // Purple for music
+              border: "4px solid white",
+              color: "white",
+              fontSize: "32px",
+              fontFamily: "monospace",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              boxShadow: "4px 4px 0px rgba(0,0,0,0.5)",
+              zIndex: 100,
+              imageRendering: "pixelated",
+              borderRadius: "0px",
               animation: "popIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55)",
             }}
           >
