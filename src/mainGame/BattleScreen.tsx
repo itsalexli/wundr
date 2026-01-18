@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { SPRITE_SIZE, type StaticSprite } from './gameConfig';
+import enemy1Img from '../assets/sprites/enemy1.png';
+import enemy2Img from '../assets/sprites/enemy2.png';
+import enemy3Img from '../assets/sprites/enemy3.png';
+import enemy4Img from '../assets/sprites/enemy4.png';
 import { QuestionScreen } from './QuestionScreen';
 import { initializeQuestionBank, getNextQuestion, recordResult, isQuestionBankReady, type AgeLevel } from './questionBank';
 import type { Question } from './questionGenerator';
@@ -27,6 +31,11 @@ import oceanSunsetBeachBg from '../assets/battleBackgrounds/ocean_sunset_beach.p
 import snowyMountainPeakBg from '../assets/battleBackgrounds/snowy_mountain_peak.png'
 import spaceNebulaBg from '../assets/battleBackgrounds/space_nebula.png'
 import sunnyMeadowClearingBg from '../assets/battleBackgrounds/sunny_meadow_clearing.png'
+import vinebitBattleImg from '../assets/vinebitbattle.png'
+import bonecasterBattleImg from '../assets/bonecasterbattle.png'
+import emberfiendBattleImg from '../assets/emberfiendbattle.png'
+import bubblegloomBattleImg from '../assets/bubblegloombattle.png'
+import runawayImg from '../assets/runaway.png'
 
 interface BattleScreenProps {
   enemy: StaticSprite;
@@ -79,6 +88,18 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   
   const [battleResult, setBattleResult] = useState<'win' | 'loss' | null>(null);
+
+  // Map enemy images to battle title images
+  const getBattleTitleImage = (enemyImage?: string) => {
+    if (!enemyImage) return emberfiendBattleImg; // Default fallback
+
+    if (enemyImage === enemy1Img) return bubblegloomBattleImg;
+    if (enemyImage === enemy2Img) return emberfiendBattleImg;
+    if (enemyImage === enemy3Img) return vinebitBattleImg;
+    if (enemyImage === enemy4Img) return bonecasterBattleImg;
+
+    return emberfiendBattleImg; // Default fallback
+  };
 
   // Map main game backgrounds to battle backgrounds
   const getBattleBackground = (mainBackground: BackgroundImage | null) => {
@@ -239,18 +260,6 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     setActiveSpell(spell);
   };
 
-  if (activeSpell) {
-    return (
-      <QuestionScreen
-        spellName={activeSpell}
-        learningMaterial={learningMaterial}
-        ageLevel={ageLevel}
-        preloadedQuestion={currentQuestion}
-        onClose={handleSpellComplete}
-      />
-    );
-  }
-
   return (
     <div style={{
       position: 'absolute',
@@ -269,7 +278,17 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       justifyContent: 'center',
       color: 'white'
     }}>
-      <h1 style={{ marginBottom: '50px', marginTop: '50px' }}>Player VS {enemy.title}</h1>
+      <img
+        src={getBattleTitleImage(enemy.image)}
+        alt={enemy.title || "Enemy"}
+        style={{
+          marginBottom: '-190px',
+          marginTop: '-20px',
+          width: '500px',
+          height: 'auto',
+          imageRendering: 'pixelated'
+        }}
+      />
 
       {/* Projectiles Layer */}
       {projectiles.map(p => (
@@ -293,7 +312,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
         width: '80%',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: '450px',
+        gap: '400px',
         flex: 1, // Take up available vertical space to center content
         marginBottom: '-180px'
       }}>
@@ -465,17 +484,19 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
           position: 'absolute',
           top: '20px',
           right: '20px',
-          padding: '10px 20px',
-          fontSize: '16px',
-          backgroundColor: '#ff4444',
-          color: 'white',
+          width: '80px',
+          height: '80px',
+          backgroundImage: `url(${runawayImg})`,
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          backgroundColor: 'transparent',
           border: 'none',
           borderRadius: '8px',
           cursor: 'pointer',
         }}
-      >
-        Run Away
-      </button>
+        title="Run Away"
+      />
 
       {/* Inventory Button */}
       <button
@@ -550,6 +571,30 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
               {battleResult === 'win' ? 'Continue' : 'Try Again'}
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Question Screen Modal Overlay */}
+      {activeSpell && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 200
+        }}>
+          <QuestionScreen
+            spellName={activeSpell}
+            learningMaterial={learningMaterial}
+            ageLevel={ageLevel}
+            preloadedQuestion={currentQuestion}
+            onClose={handleSpellComplete}
+          />
         </div>
       )}
     </div>

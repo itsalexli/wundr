@@ -6,6 +6,8 @@ import { staticSprites as initialSprites, SPRITE_SIZE, PLAYER_SIZE, type StaticS
 import type { UserAnswers } from '../choosingGame/MainChoosingGame'
 import { BattleScreen } from './BattleScreen'
 import { matchBackground, type BackgroundImage } from './backgroundMatcher'
+import defeatedCountImg from '../assets/defeatedCount.png'
+import backToChoicesImg from '../assets/backtochoices.png'
 
 // Hello Kitty Assets
 import hkDown from '../assets/hellokitty/hk-down.png'
@@ -42,7 +44,7 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
 
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const [background, setBackground] = useState<BackgroundImage | null>(null)
-  const [isLoadingBg, setIsLoadingBg] = useState(false)
+  const [, setIsLoadingBg] = useState(false)
   // State for enemies with randomized positions
   const [gameSprites, setGameSprites] = useState<StaticSprite[]>([])
   const [defeatedCount, setDefeatedCount] = useState(0)
@@ -66,11 +68,11 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
 
     // Manually place each sprite at (100, 200) one at a time
     const newSprites: StaticSprite[] = [
-      { ...initialSprites[0], x: 500, y: 180, image: getRandomImage() },
-      { ...initialSprites[1], x: 325, y: 60, image: getRandomImage() },
-      { ...initialSprites[4], x: 950, y: 200, image: getRandomImage() },
-      { ...initialSprites[5], x: 1100, y: 50, image: getRandomImage() },
-      { ...initialSprites[6], x: 725, y: 375, image: getRandomImage() },
+      { ...initialSprites[0], x: 540, y: 240, image: getRandomImage() },
+      { ...initialSprites[1], x: 370, y: 120, image: getRandomImage() },
+      { ...initialSprites[4], x: 930, y: 260, image: getRandomImage() },
+      { ...initialSprites[5], x: 1090, y: 110, image: getRandomImage() },
+      { ...initialSprites[6], x: 725, y: 420, image: getRandomImage() },
     ];
 
     setGameSprites(newSprites);
@@ -319,18 +321,20 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
                 position: 'absolute',
                 top: '16px',
                 left: '16px',
-                padding: '10px 20px',
-                backgroundColor: '#333',
-                color: 'white',
+                width: '250px',
+                height: '75px',
+                backgroundImage: `url(${backToChoicesImg})`,
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
+                backgroundColor: 'transparent',
                 border: 'none',
                 borderRadius: '8px',
-                fontSize: '14px',
                 cursor: 'pointer',
                 zIndex: 1000
               }}
-            >
-              ← Back to Choices
-            </button>
+              title="Back to Choices"
+            />
           )}
 
           {/* Inventory Button */}
@@ -338,10 +342,10 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
             onClick={() => setIsInventoryOpen(true)}
             style={{
               position: 'absolute',
-              top: '140px', // Pushed down further to be safely below the stats box
-              right: '16px',
-              width: '50px',
-              height: '50px',
+              top: '20px', // Pushed down further to be safely below the stats box
+              right: '20px',
+              width: '60px',
+              height: '60px',
               backgroundImage: `url(${bagImg})`,
               backgroundSize: 'contain',
               backgroundRepeat: 'no-repeat',
@@ -354,32 +358,37 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
             title="Open Inventory"
           />
 
-          {/* Show user choices if available - OR just show defeat counter if no choices */}
-          {((userAnswers && Object.keys(userAnswers).length > 0) || defeatedCount >= 0) && (
+          {/* Defeated Count Display */}
+          {defeatedCount >= 0 && (
             <div style={{
               position: 'absolute',
               top: '16px',
-              right: '16px',
-              backgroundColor: 'rgba(255,255,255,0.9)',
-              padding: '12px',
-              borderRadius: '8px',
-              fontSize: '12px',
-              zIndex: 1000,
-              minWidth: '150px' // Ensure some width so inventory can align nicely below
+              right: '105px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              zIndex: 1000
             }}>
-              {isLoadingBg && <div style={{ marginBottom: '8px', color: '#666' }}>Creating world... 🎨</div>}
-              {userAnswers && Object.keys(userAnswers).length > 0 && (
-                <>
-                  <strong>Your choices:</strong>
-                  {userAnswers.character && <div>👤 {userAnswers.character}</div>}
-                  {userAnswers.music && <div>🎵 {userAnswers.music}</div>}
-                  {userAnswers.background && <div>🖼️ {userAnswers.background}</div>}
-                </>
-              )}
-              
-              <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #ddd', fontSize: '14px', fontWeight: 'bold', color: '#e53935' }}>
-                ⚔️ Defeated: {defeatedCount}
-              </div>
+              <img
+                src={defeatedCountImg}
+                alt="Defeated Count"
+                style={{
+                  width: '250px',
+                  height: 'auto',
+                  imageRendering: 'pixelated'
+                }}
+              />
+              <span style={{
+                position: 'absolute',
+                top: '10px',
+                right: '30px',
+                fontSize: '30px',
+                fontWeight: 'bold',
+                color: '#e53935',
+                textShadow: '2px 2px 0px rgba(0,0,0,0.5)'
+              }}>
+                {defeatedCount}
+              </span>
             </div>
           )}
 

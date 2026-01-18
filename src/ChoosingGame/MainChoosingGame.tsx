@@ -790,8 +790,8 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                 }}
                 style={{
                   position: "absolute",
-                  top: "20px",
-                  right: "20px",
+                  top: "10px",
+                  right: "50px",
                   background: "none",
                   border: "none",
                   padding: 0,
@@ -803,7 +803,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                   src={exitButtonImg}
                   alt="Close"
                   style={{
-                    width: "40px",
+                    width: "60px",
                     height: "auto",
                     objectFit: "contain",
                   }}
@@ -818,7 +818,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                 style={{
                   position: "absolute",
                   left: "228px",
-                  top: "420px",
+                  top: "480px",
                   background: "none",
                   border: "none",
                   cursor: learningMaterial.trim() ? "pointer" : "not-allowed",
