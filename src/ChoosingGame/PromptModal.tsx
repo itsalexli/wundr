@@ -35,6 +35,8 @@ export interface PromptModalProps {
     /** Optional custom style for the textarea itself */
     /** Optional custom style for the textarea itself */
     textareaStyle?: React.CSSProperties;
+    /** Optional to hide the input area (e.g. for review mode) */
+    hideInput?: boolean;
     /** Optional image for the close button */
     closeButtonImage?: string;
 }
@@ -57,6 +59,7 @@ export function PromptModal({
     inputAreaStyle,
     textareaStyle,
     closeButtonImage,
+    hideInput = false,
 }: PromptModalProps) {
     const [answer, setAnswer] = useState('');
     const [answerBeforeDictation, setAnswerBeforeDictation] = useState('');
@@ -222,29 +225,31 @@ export function PromptModal({
 
             {/* Input Wrapper */}
             <div style={styles.inputWrapper}>
-                <div style={styles.inputContainer}>
-                    <textarea
-                        style={styles.textarea}
-                        value={answer}
-                        onChange={handleInputChange}
-                        onKeyDown={handleKeyDown}
-                        placeholder={placeholder}
-                        autoFocus
-                        disabled={isLoading}
-                    />
-                    <div style={styles.buttonContainer}>
-                        <DictationButton
-                            onDictationStart={() => setAnswerBeforeDictation(answer)}
-                            onTranscriptChange={(text) => {
-                                const separator = answerBeforeDictation && !answerBeforeDictation.endsWith(' ') ? ' ' : '';
-                                const newVal = answerBeforeDictation + separator + text;
-                                setAnswer(newVal);
-                                onInputChange?.(newVal);
-                            }}
-                            size={48}
+                {!hideInput && (
+                    <div style={styles.inputContainer}>
+                        <textarea
+                            style={styles.textarea}
+                            value={answer}
+                            onChange={handleInputChange}
+                            onKeyDown={handleKeyDown}
+                            placeholder={placeholder}
+                            autoFocus
+                            disabled={isLoading}
                         />
+                        <div style={styles.buttonContainer}>
+                            <DictationButton
+                                onDictationStart={() => setAnswerBeforeDictation(answer)}
+                                onTranscriptChange={(text) => {
+                                    const separator = answerBeforeDictation && !answerBeforeDictation.endsWith(' ') ? ' ' : '';
+                                    const newVal = answerBeforeDictation + separator + text;
+                                    setAnswer(newVal);
+                                    onInputChange?.(newVal);
+                                }}
+                                size={48}
+                            />
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Submit Button */}
                 <button style={styles.submitButton} onClick={handleSubmit} disabled={isLoading}>

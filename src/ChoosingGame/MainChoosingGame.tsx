@@ -17,6 +17,7 @@ import hkRight from '../assets/hellokitty/hk-right.png'
 import hkUp from '../assets/hellokitty/hk-up.png'
 import hkDown from '../assets/hellokitty/hk-down.png'
 import characterDesignerBg from '../assets/_designer_ popups/character designer.png'
+import characterShowcaseBg from '../assets/_designer_ popups/character designer (Character showcase).png'
 import exitButtonImg from '../assets/_designer_ popups/exitbutton.png'
 
 // Progress bar images array (0 = empty, 3 = full)
@@ -240,7 +241,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
   const showVisuals = activeSprite?.id === 'character' && modalStep === 'review';
 
   const leftPaneContent = showVisuals ? (
-    <img src={selectedCostume} alt="Character Preview" style={{ width: '80%', height: 'auto', objectFit: 'contain', imageRendering: 'pixelated' }} />
+    <img src={selectedCostume} alt="Character Preview" style={{ width: '80%', height: 'auto', objectFit: 'contain', imageRendering: 'pixelated', marginLeft: '100px' }} />
   ) : undefined;
 
   let costumes: string[] = [];
@@ -255,7 +256,16 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
   }
 
   const rightPaneContent = showVisuals ? (
-    <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', justifyContent: 'center' }}>
+    <div style={{ 
+      display: 'grid', 
+      gridTemplateColumns: 'repeat(2, 1fr)', 
+      gap: '16px', 
+      marginBottom: '90px',
+      marginLeft: '90px', 
+      justifyItems: 'center',
+      width: 'fit-content',
+      margin: '0 auto 24px auto'
+    }}>
       {costumes.map((costume, index) => (
         <img 
           key={index}
@@ -508,9 +518,10 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                 maxWidth: '320px',    // Constrain width
                 alignSelf: 'center',   // Center horizontally in the pane
             } : undefined}
-            backgroundImage={activeSprite.id === 'character' ? characterDesignerBg : undefined}
+            backgroundImage={activeSprite.id === 'character' ? (modalStep === 'review' ? characterShowcaseBg : characterDesignerBg) : undefined}
             textareaStyle={activeSprite.id === 'character' ? { minHeight: '300px' } : undefined}
             closeButtonImage={activeSprite.id === 'character' ? exitButtonImg : undefined}
+            hideInput={activeSprite.id === 'character' && modalStep === 'review'}
           />
         )}
 
