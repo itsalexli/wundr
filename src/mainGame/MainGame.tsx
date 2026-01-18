@@ -329,7 +329,7 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
             style={{
               position: 'absolute',
               top: '20px', // Pushed down further to be safely below the stats box
-              right: '285px',
+              right: '20px',
               width: '60px',
               height: '60px',
               backgroundImage: `url(${bagImg})`,
@@ -349,7 +349,7 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
             <div style={{
               position: 'absolute',
               top: '16px',
-              right: '16px',
+              right: '105px',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
