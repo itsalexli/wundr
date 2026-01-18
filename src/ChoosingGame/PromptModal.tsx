@@ -94,7 +94,7 @@ export function PromptModal({
             maxHeight: height ? '90vh' : 'auto',
             display: 'flex',
             flexDirection: 'column',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+            boxShadow: backgroundImage ? 'none' : '0 8px 32px rgba(0, 0, 0, 0.3)',
             position: 'relative',
             overflow: 'hidden',
             backgroundImage: backgroundImage ? `url("${backgroundImage}")` : undefined,
