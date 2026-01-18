@@ -13,6 +13,8 @@ import {
 import choosingBackground from "../assets/choosingpage/choosingBackground.png";
 import defaultLeftImg from "../assets/sprites/defaultleft.png";
 import defaultRightImg from "../assets/sprites/defaultright.png";
+import defaultFrontImg from "../assets/sprites/defaultfront.png";
+import defaultBackImg from "../assets/sprites/defaultback.png";
 import hkLeft from "../assets/hellokitty/hk-left.png";
 import hkRight from "../assets/hellokitty/hk-right.png";
 import hkUp from "../assets/hellokitty/hk-up.png";
@@ -472,9 +474,13 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                     : direction === "left"
                       ? lobbySprite.left
                       : lobbySprite.right
-                : direction === "left"
-                  ? defaultLeftImg
-                  : defaultRightImg
+                : direction === "up"
+                  ? defaultBackImg
+                  : direction === "down"
+                    ? defaultFrontImg
+                    : direction === "left"
+                      ? defaultLeftImg
+                      : defaultRightImg
           }
         />
 
