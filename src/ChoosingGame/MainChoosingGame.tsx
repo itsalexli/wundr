@@ -253,7 +253,27 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
       if (modalStep === "loading") return; // Ignore clicks during loading
 
       // If modalStep === 'review', proceed to confirm/save
+      // If modalStep === 'review', proceed to confirm/save
       // NO RETURN HERE - Fall through to save logic
+    } else if (sprite.id === "background") {
+       if (modalStep === "input") {
+         handleClose(sprite);
+         setGeneratingType("background");
+         
+         matchBackground(answer)
+            .then((bg) => {
+                setPreviewBackground(bg);
+            })
+            .catch((e) => {
+                console.error("Background match error:", e);
+                alert("Failed to generate background.");
+            })
+            .finally(() => {
+                setGeneratingType(null);
+            });
+         return;
+       }
+       if (modalStep === "loading") return;
     } else if (sprite.id === "music") {
         if (modalStep === "input") {
             handleClose(sprite);
@@ -310,6 +330,9 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
       // If we generated sprites, save them too
       ...(sprite.id === "character" && generatedSprites
         ? { generatedSprites }
+        : {}),
+      ...(sprite.id === "background" && previewBackground
+        ? { backgroundId: previewBackground.id }
         : {}),
     }));
 
