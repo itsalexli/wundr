@@ -21,6 +21,9 @@ import characterShowcaseBg from '../assets/_designer_ popups/character designer 
 import backgroundDesignerBg from '../assets/_designer_ popups/background designer.png'
 import soundDesignerBg from '../assets/_designer_ popups/sound designer.png'
 import exitButtonImg from '../assets/_designer_ popups/exitbutton.png'
+import portalBackgroundImg from '../assets/portal/portalbackground.png'
+import uploadTextButtonImg from '../assets/portal/uploadtextbutton.png'
+import enterPortalButtonImg from '../assets/portal/enterportalbutton.png'
 import DrawingCanvas from './DrawingCanvas';
 
 // Progress bar images array (0 = empty, 3 = full)
@@ -60,6 +63,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isDrawing, setIsDrawing] = useState(false)
   const keysPressed = useInputController()
+
 
   // Game Loop
   useEffect(() => {
@@ -403,98 +407,100 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
             zIndex: 2000
           }}>
             <div style={{
-              backgroundColor: 'white',
+              backgroundImage: `url(${portalBackgroundImg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
               padding: '32px',
               borderRadius: '16px',
               textAlign: 'center',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
               maxWidth: '600px',
-              width: '90%'
+              width: '90%',
+              minHeight: '500px'
             }}>
-              <h2 style={{ margin: '0 0 16px', color: '#333' }}>🌀 Upload Your Study Material</h2>
-              <p style={{ color: '#666', marginBottom: '20px' }}>
-                Paste your notes or upload a text file. This will be used to generate quiz questions during battles!
-              </p>
 
               {/* Text Area for pasting notes */}
               <textarea
                 value={learningMaterial}
                 onChange={(e) => setLearningMaterial(e.target.value)}
-                placeholder="Paste your study notes here... (e.g., 'The water cycle consists of evaporation, condensation, and precipitation...')"
+                placeholder="Paste your study notes here..."
                 style={{
-                  width: '100%',
-                  height: '200px',
+                  position: 'absolute',
+                  left: '502px',
+                  top: '275px',
+                  width: '425px',
+                  height: '127px',
                   padding: '12px',
                   borderRadius: '8px',
                   border: '2px solid #ddd',
                   fontSize: '14px',
                   resize: 'vertical',
-                  marginBottom: '16px',
-                  fontFamily: 'inherit'
+                  fontFamily: 'inherit',
+                  color: 'black',
+                  backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  zIndex: 10
                 }}
               />
 
               {/* File Upload */}
-              <div style={{ marginBottom: '20px' }}>
-                <input
-                  type="file"
-                  accept=".txt,.md"
-                  id="fileUpload"
-                  style={{ display: 'none' }}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (event) => {
-                        const content = event.target?.result as string;
-                        setLearningMaterial(prev => prev + (prev ? '\n\n' : '') + content);
-                      };
-                      reader.readAsText(file);
-                    }
+              <input
+                type="file"
+                accept=".txt,.md"
+                id="fileUpload"
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      const content = event.target?.result as string;
+                      setLearningMaterial(prev => prev + (prev ? '\n\n' : '') + content);
+                    };
+                    reader.readAsText(file);
+                  }
+                }}
+              />
+              <label
+                htmlFor="fileUpload"
+                style={{
+                  position: 'absolute',
+                  left: '632px',
+                  top: '410px',
+                  cursor: 'pointer'
+                }}
+              >
+                <img
+                  src={uploadTextButtonImg}
+                  alt="Upload Text File"
+                  style={{
+                    width: '200px',
+                    height: 'auto'
                   }}
                 />
-                <label
-                  htmlFor="fileUpload"
-                  style={{
-                    padding: '10px 20px',
-                    backgroundColor: '#eee',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#333'
-                  }}
-                >
-                  📁 Upload Text File
-                </label>
-              </div>
+              </label>
 
-              {/* Character count */}
-              <p style={{ color: '#999', fontSize: '12px', marginBottom: '16px' }}>
-                {learningMaterial.length} characters
-              </p>
+              
 
               {/* Age Level Selector */}
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{
-                  display: 'block',
-                  color: '#333',
-                  fontWeight: 'bold',
-                  marginBottom: '8px',
-                  fontSize: '14px'
-                }}>
-                  🎯 Question Difficulty Level
-                </label>
+              <div style={{
+                position: 'absolute',
+                left: '656px',
+                top: '570px',
+              }}>
                 <select
                   value={ageLevel}
                   onChange={(e) => setAgeLevel(e.target.value as AgeLevel)}
                   style={{
-                    padding: '10px 16px',
+                    padding: '4px 16px',
                     borderRadius: '8px',
                     border: '2px solid #ddd',
                     fontSize: '14px',
                     backgroundColor: 'white',
+                    color: 'black',
                     cursor: 'pointer',
-                    minWidth: '200px'
+                    maxWidth: '150px',
+                    maxHeight: '30px'
                   }}
                 >
                   {AGE_LEVELS.map(level => (
@@ -503,18 +509,34 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                     </option>
                   ))}
                 </select>
-                <p style={{ color: '#888', fontSize: '11px', marginTop: '6px' }}>
-                  Choose based on the learner's age for appropriate vocabulary
-                </p>
               </div>
 
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-                <button
-                  onClick={() => {
-                    handleClose(activeSprite);
-                    setLearningMaterial('');
-                  }}
+              {/* Close Button */}
+              <button
+                onClick={() => {
+                  handleClose(activeSprite);
+                  setLearningMaterial('');
+                }}
+                style={{
+                  position: 'absolute',
+                  top: '170px',
+                  right: '450px',
+                  width: '60px',
+                  height: 'auto',
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                  zIndex: 10
+                }}
+              >
+                <img
+                  src={exitButtonImg}
+                  alt="Close"
                   style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
                     padding: '12px 24px',
                     backgroundColor: '#666',
                     color: 'white',
@@ -523,26 +545,32 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                     fontSize: '16px',
                     cursor: 'pointer'
                   }}
-                >
-                  Close
-                </button>
-                <button
+                />
+              </button>
+
+              <button
                   onClick={() => onEnterPortal?.({ ...answers, learningMaterial, ageLevel })}
                   disabled={!learningMaterial.trim()}
                   style={{
-                    padding: '12px 24px',
-                    backgroundColor: learningMaterial.trim() ? activeSprite.color : '#ccc',
-                    color: 'white',
+                    position: 'absolute',
+                    left: '632px',
+                    top: '585px',
+                    background: 'none',
                     border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '16px',
                     cursor: learningMaterial.trim() ? 'pointer' : 'not-allowed',
-                    fontWeight: 'bold'
+                    opacity: learningMaterial.trim() ? 1 : 0.5,
+                    padding: 0
                   }}
                 >
-                  Enter Portal 🚀
-                </button>
-              </div>
+                  <img
+                    src={enterPortalButtonImg}
+                    alt="Enter Portal"
+                    style={{
+                      width: '200px',
+                      height: 'auto'
+                    }}
+                />
+              </button>
             </div>
           </div>
         )}
