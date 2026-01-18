@@ -27,6 +27,7 @@ import oceanSunsetBeachBg from '../assets/battleBackgrounds/ocean_sunset_beach.p
 import snowyMountainPeakBg from '../assets/battleBackgrounds/snowy_mountain_peak.png'
 import spaceNebulaBg from '../assets/battleBackgrounds/space_nebula.png'
 import sunnyMeadowClearingBg from '../assets/battleBackgrounds/sunny_meadow_clearing.png'
+import emberfiendImg from '../assets/emberfiend.png'
 
 interface BattleScreenProps {
   enemy: StaticSprite;
@@ -257,7 +258,17 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
       justifyContent: 'center',
       color: 'white'
     }}>
-      <h1 style={{ marginBottom: '50px', marginTop: '50px' }}>Player VS {enemy.title}</h1>
+      <img
+        src={emberfiendImg}
+        alt="Emberfiend"
+        style={{
+          marginBottom: '-40px',
+          marginTop: '100px',
+          width: '400px',
+          height: 'auto',
+          imageRendering: 'pixelated'
+        }}
+      />
 
       {/* Projectiles Layer */}
       {projectiles.map(p => (
@@ -281,7 +292,7 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
         width: '80%',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: '450px',
+        gap: '400px',
         flex: 1, // Take up available vertical space to center content
         marginBottom: '-180px'
       }}>
