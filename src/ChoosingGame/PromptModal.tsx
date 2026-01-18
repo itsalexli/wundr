@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { DictationButton } from './DictationTool';
 import submitButtonImg from './submitButton.png';
+import brushImg from '../assets/choosingpage/paint.png';
 
 export interface PromptModalProps {
     /** The prompt/question to display */
@@ -266,8 +267,7 @@ export function PromptModal({
                                     src={submitButtonImg}
                                     alt={submitLabel}
                                     style={{
-                                        width: '100%',
-                                        height: '100%',
+                                        width: '130%',
                                         objectFit: 'contain'
                                     }}
                                 />
@@ -294,7 +294,7 @@ export function PromptModal({
                                         height: '48px',
                                         borderRadius: '50%',
                                         border: 'none',
-                                        backgroundColor: '#9c27b0',
+                                        backgroundColor: 'transparent',
                                         color: 'white',
                                         fontSize: '20px',
                                         cursor: 'pointer',
@@ -307,7 +307,15 @@ export function PromptModal({
                                     onClick={onPaintClick}
                                     title="Draw your character"
                                 >
-                                    🖌️
+                                    <img
+                                        src={brushImg}
+                                        alt="Brush"
+                                        style={{
+                                            width: '150%',
+                                            height: '150%',
+                                            objectFit: 'contain'
+                                        }}
+                                    />
                                 </button>
                             )}
                         </div>

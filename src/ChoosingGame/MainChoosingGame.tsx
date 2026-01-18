@@ -483,6 +483,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
             justifyItems: "center",
             width: "fit-content",
             margin: "0 auto 24px auto",
+            transform: "translate(-45px, -20px)",
         }}
         >
         {costumes.map((costume, index) => (
