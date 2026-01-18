@@ -3,7 +3,7 @@ import '../App.css'
 import { useInputController } from '../shared/useInputController'
 import { Sprite } from '../shared/Sprite'
 import { staticSprites, SPRITE_SIZE, PLAYER_SIZE } from './gameConfig'
-import type { UserAnswers } from '../ChoosingGame/MainChoosingGame'
+import type { UserAnswers } from '../choosingGame/MainChoosingGame'
 import { BattleScreen } from './BattleScreen'
 import { matchBackground, type BackgroundImage } from './backgroundMatcher'
 

@@ -2,14 +2,19 @@ import { StrictMode, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import MainGame from './mainGame/MainGame.tsx'
-import ChoosingGame from './ChoosingGame/MainChoosingGame.tsx'
-import type { UserAnswers } from './ChoosingGame/MainChoosingGame.tsx'
+import ChoosingGame from './choosingGame/MainChoosingGame.tsx'
+import { LandingPage } from './LandingPage.tsx'
+import type { UserAnswers } from './choosingGame/MainChoosingGame.tsx'
 
-type Page = 'choosing' | 'mainGame'
+type Page = 'landing' | 'choosing' | 'mainGame'
 
 function App() {
-  const [currentPage, setCurrentPage] = useState<Page>('choosing')
+  const [currentPage, setCurrentPage] = useState<Page>('landing')
   const [userAnswers, setUserAnswers] = useState<UserAnswers>({})
+
+  const handleStartGame = () => {
+    setCurrentPage('choosing')
+  }
 
   const handleEnterPortal = (answers: UserAnswers) => {
     setUserAnswers(answers)
@@ -22,6 +27,9 @@ function App() {
 
   return (
     <>
+      {currentPage === 'landing' && (
+        <LandingPage onStartGame={handleStartGame} />
+      )}
       {currentPage === 'choosing' && (
         <ChoosingGame onEnterPortal={handleEnterPortal} />
       )}
