@@ -49,7 +49,7 @@ export default defineConfig({
 
             const geminiPrompt = `
               You are a pixel art generator. Generate 4 SVG images for a character described as: "${prompt}".
-              The style should be 8-bit pixel art, cute, simple, similar to Hello Kitty or retro game sprites (approx 32x32 viewbox).
+              The style should be 8-bit pixel art, cute, simple, similar to retro game sprites (approx 32x32 viewbox), but detailed enough.
               
               Return ONLY a valid JSON object (no markdown formatting) with exactly these 4 keys: "front", "back", "left", "right".
               The value of each key must be the raw SVG string (starting with <svg...).

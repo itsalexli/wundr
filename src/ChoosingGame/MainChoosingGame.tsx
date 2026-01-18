@@ -16,6 +16,7 @@ import hkLeft from '../assets/hellokitty/hk-left.png'
 import hkRight from '../assets/hellokitty/hk-right.png'
 import hkUp from '../assets/hellokitty/hk-up.png'
 import hkDown from '../assets/hellokitty/hk-down.png'
+import characterDesignerBg from '../assets/_designer_ popups/character designer.png'
 
 // Progress bar images array (0 = empty, 3 = full)
 const progressBarImages = [progressBar0, progressBar1, progressBar2, progressBar3];
@@ -500,6 +501,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
             isLoading={modalStep === 'loading'}
             submitLabel={modalStep === 'review' ? 'Confirm' : 'Submit'}
             clearOnSubmit={activeSprite.id !== 'character'}
+            backgroundImage={activeSprite.id === 'character' ? characterDesignerBg : undefined}
           />
         )}
 

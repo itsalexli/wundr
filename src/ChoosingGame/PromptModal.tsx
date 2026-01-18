@@ -28,6 +28,8 @@ export interface PromptModalProps {
     isLoading?: boolean;
     /** Whether to clear input on submit (default true) */
     clearOnSubmit?: boolean;
+    /** Optional background image URL */
+    backgroundImage?: string;
 }
 
 export function PromptModal({
@@ -44,6 +46,7 @@ export function PromptModal({
     submitLabel = 'Submit',
     isLoading = false,
     clearOnSubmit = true,
+    backgroundImage,
 }: PromptModalProps) {
     const [answer, setAnswer] = useState('');
     const [answerBeforeDictation, setAnswerBeforeDictation] = useState('');
@@ -94,6 +97,9 @@ export function PromptModal({
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
             position: 'relative',
             overflow: 'hidden',
+            backgroundImage: backgroundImage ? `url("${backgroundImage}")` : undefined,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
         },
         closeButton: {
             position: 'absolute',
