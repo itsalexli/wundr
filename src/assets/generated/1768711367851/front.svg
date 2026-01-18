@@ -1,0 +1,20 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern id="checkerboard" patternUnits="userSpaceOnUse" width="2" height="2">
+<rect x="0" y="0" width="1" height="1" fill="#fff"/>
+<rect x="1" y="1" width="1" height="1" fill="#fff"/>
+</pattern>
+</defs>
+<rect width="32" height="32" fill="url(#checkerboard)"/>
+<rect x="8" y="2" width="16" height="16" fill="#FCE7C6"/>
+<rect x="13" y="4" width="2" height="2" fill="#4F4F4F"/>
+<rect x="17" y="4" width="2" height="2" fill="#4F4F4F"/>
+<rect x="12" y="8" width="8" height="2" fill="#4F4F4F"/>
+<rect x="12" y="18" width="8" height="6" fill="#B58863"/>
+<rect x="4" y="18" width="8" height="6" fill="#B58863"/>
+<rect x="20" y="18" width="8" height="6" fill="#B58863"/>
+<rect x="14" y="0" width="4" height="4" fill="#875F4A"/>
+<rect x="8" y="18" width="16" height="2" fill="#875F4A"/>
+<rect x="12" y="24" width="2" height="4" fill="#875F4A"/>
+<rect x="18" y="24" width="2" height="4" fill="#875F4A"/>
+</svg>

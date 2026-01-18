@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" style="image-rendering: crisp-edges;">
+  <!-- Character is Yellow (#FFCC00), Beak/Feet Orange (#FF8800), Outline Black (#000000) -->
+  
+  <!-- Body Fill -->
+  <path fill="#FFCC00" d="M11 15h10v9H11z"/>
+  <!-- Head Fill -->
+  <path fill="#FFCC00" d="M13 8h7v7H13z"/>
+  
+  <!-- Beak Fill (Prominent V-shape, facing Left) -->
+  <path fill="#FF8800" d="M11 11h2v1H11zM9 10h2v1H9zM7 9h2v1H7z"/>
+  
+  <!-- Outline -->
+  <path fill="#000000" d="M13 7h8v1H13zM21 8h1v7H21zM12 8h-1v3h1zM11 11h-1v1h1zM10 10h-1v1h1zM9 9h-1v1h1zM8 8h-1v1h1zM6 8h1v2H6zM7 9v1h-1zM21 15h-1v1H21zM11 24h10v1H11z"/>
+  <!-- Side body outline -->
+  <path fill="#000000" d="M22 16h-1v8H21zM10 16h1v8H10z"/>
+  
+  <!-- Beak connection -->
+  <path fill="#000000" d="M12 13h1v2H12zM11 15h1v1H11z"/>
+  
+  <!-- Eyes -->
+  <rect x="15" y="10" width="1" height="1" fill="#000000"/>
+  
+  <!-- Wings (stick arm interpretation, visible side) -->
+  <rect x="10" y="18" width="4" height="1" fill="#000000"/>
+  
+  <!-- Legs/Feet (Orange, slightly staggered) -->
+  <rect x="14" y="25" width="1" height="2" fill="#FF8800"/>
+  <rect x="17" y="25" width="1" height="2" fill="#FF8800"/>
+  <rect x="13" y="27" width="3" height="1" fill="#FF8800"/>
+  <rect x="16" y="27" width="3" height="1" fill="#FF8800"/>
+</svg>

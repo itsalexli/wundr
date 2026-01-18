@@ -24,7 +24,7 @@ export default defineConfig({
               buffers.push(chunk);
             }
             const body = JSON.parse(Buffer.concat(buffers).toString());
-            const { prompt } = body;
+            const { prompt, image } = body;
 
             if (!prompt) {
               res.statusCode = 400;
@@ -33,10 +33,10 @@ export default defineConfig({
             }
 
             console.log(`🍌 Nano Banana: Received prompt "${prompt}"`);
-            console.log(`🍌 Nano Banana: Received prompt "${prompt}"`);
+            if (image) console.log(`🍌 Nano Banana: Received image data (length: ${image.length})`);
+
             const apiKey = process.env.GEMINI_API_KEY;
 
-            // 2. Call Gemini
             if (!apiKey) {
               res.statusCode = 500;
               res.end(JSON.stringify({ error: 'Missing GEMINI_API_KEY in .env' }));
@@ -44,12 +44,17 @@ export default defineConfig({
             }
 
             const genAI = new GoogleGenerativeAI(apiKey);
-            // Using a model seen in the available list
-            const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+            // using the requested specialized model
+            const model = genAI.getGenerativeModel({ model: "nano-banana-pro-preview" });
 
-            const geminiPrompt = `
-              You are a pixel art generator. Generate 4 SVG images for a character described as: "${prompt}".
-              The style should be 8-bit pixel art, cute, simple, similar to retro game sprites (approx 32x32 viewbox), but detailed enough.
+            const basePrompt = `
+              You are an expert pixel art generator. Generate 4 SVG images for a character described as: "${prompt}".
+              
+              STYLE RULES:
+              - STRICT 8-bit pixel art style (approx 32x32 pixel grid).
+              - Use solid colors ONLY. NO gradients, NO blurring, NO anti-aliasing.
+              - Distinct, readable shapes with clear outlines (1px thick preferred).
+              - Cute, simple, retro RPG aesthetics (Earthbound/Pokemon style).
               
               Return ONLY a valid JSON object (no markdown formatting) with exactly these 4 keys: "front", "back", "left", "right".
               The value of each key must be the raw SVG string (starting with <svg...).
@@ -63,16 +68,33 @@ export default defineConfig({
               }
             `;
 
+            let geminiPrompt: any = basePrompt;
+            
+            if (image) {
+                const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
+                // For vision, we pass an array with text + image
+                geminiPrompt = [
+                    basePrompt + "\n\nUse the attached sketch as a visual reference.",
+                    {
+                        inlineData: {
+                            data: base64Data,
+                            mimeType: "image/png",
+                        },
+                    }
+                ];
+            }
+
+            console.log('🍌 Nano Banana: Sending request to Gemini...');
             const result = await model.generateContent(geminiPrompt);
             const response = await result.response;
             const textFn = response.text();
+            console.log('🍌 Nano Banana: Received response from Gemini');
             
             // Clean markdown code blocks if present
             const jsonStr = textFn.replace(/```json/g, '').replace(/```/g, '').trim();
             const svgs = JSON.parse(jsonStr);
 
             // 3. Save Files
-            // Create unique ID for this generation
             const id = Date.now().toString();
             const assetsDir = path.resolve(__dirname, 'src/assets/generated', id);
             
@@ -85,7 +107,6 @@ export default defineConfig({
               if (typeof svgContent === 'string') {
                 const filename = `${key}.svg`;
                 fs.writeFileSync(path.join(assetsDir, filename), svgContent);
-                // Return relative path for frontend to use
                 paths[key] = `/src/assets/generated/${id}/${filename}`;
               }
             }
@@ -98,8 +119,11 @@ export default defineConfig({
               paths: paths
             }));
 
-          } catch (error) {
-            console.error('🍌 Nano Banana Error:', error);
+          } catch (error: any) {
+            console.error('🍌 Nano Banana Error Details:', error);
+            if (error.response) {
+                console.error('API Response Error:', await error.response.text());
+            }
             res.statusCode = 500;
             const message = error instanceof Error ? error.message : String(error);
             res.end(JSON.stringify({ error: message }));

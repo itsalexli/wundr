@@ -17,10 +17,14 @@ import hkRight from '../assets/hellokitty/hk-right.png'
 import hkUp from '../assets/hellokitty/hk-up.png'
 import hkDown from '../assets/hellokitty/hk-down.png'
 import characterDesignerBg from '../assets/_designer_ popups/character designer.png'
+import characterShowcaseBg from '../assets/_designer_ popups/character designer (Character showcase).png'
 import backgroundDesignerBg from '../assets/_designer_ popups/background designer.png'
 import soundDesignerBg from '../assets/_designer_ popups/sound designer.png'
-import characterShowcaseBg from '../assets/_designer_ popups/character designer (Character showcase).png'
 import exitButtonImg from '../assets/_designer_ popups/exitbutton.png'
+import portalBackgroundImg from '../assets/portal/portalbackground.png'
+import uploadTextButtonImg from '../assets/portal/uploadtextbutton.png'
+import enterPortalButtonImg from '../assets/portal/enterportalbutton.png'
+import DrawingCanvas from './DrawingCanvas';
 
 // Progress bar images array (0 = empty, 3 = full)
 const progressBarImages = [progressBar0, progressBar1, progressBar2, progressBar3];
@@ -57,7 +61,9 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
   const [learningMaterial, setLearningMaterial] = useState('')
   const [ageLevel, setAgeLevel] = useState<AgeLevel>('6-7')
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isDrawing, setIsDrawing] = useState(false)
   const keysPressed = useInputController()
+
 
   // Game Loop
   useEffect(() => {
@@ -236,6 +242,53 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
     handleClose(sprite)
   }
 
+  const handlePaintClick = () => {
+    setIsDrawing(true);
+  };
+
+  const handleDrawingSubmit = (imageBase64: string) => {
+    setIsDrawing(false);
+    
+    // Close the character prompt modal if open
+    const charSprite = staticSprites.find(s => s.id === 'character');
+    if (charSprite) handleClose(charSprite);
+
+    setIsGenerating(true);
+    
+    // Detached fetch for background generation
+    fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            prompt: "Refine this sketch into a pixel art character", 
+            image: imageBase64 
+        }),
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success && data.paths) {
+        setGeneratedSprites({
+          front: data.paths.front,
+          back: data.paths.back,
+          left: data.paths.left,
+          right: data.paths.right
+        });
+        setSelectedCostume(data.paths.front);
+        // Do NOT setModalStep('review') here. Checkmark will handle it.
+      } else {
+        console.error('Generation failed:', data.error);
+        alert(`Failed to generate sprites: ${data.error}`);
+      }
+    })
+    .catch(error => {
+      console.error('Network error:', error);
+      alert('Network error. Please try again.');
+    })
+    .finally(() => {
+        setIsGenerating(false);
+    });
+  };
+
   // Easter Egg & Custom Content Logic
   const isHelloKitty = characterType === 'hellokitty';
   // const isCustom = characterType === 'custom' && (generatedSprites || answers.generatedSprites);
@@ -354,98 +407,100 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
             zIndex: 2000
           }}>
             <div style={{
-              backgroundColor: 'white',
+              backgroundImage: `url(${portalBackgroundImg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
               padding: '32px',
               borderRadius: '16px',
               textAlign: 'center',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
               maxWidth: '600px',
-              width: '90%'
+              width: '90%',
+              minHeight: '500px'
             }}>
-              <h2 style={{ margin: '0 0 16px', color: '#333' }}>🌀 Upload Your Study Material</h2>
-              <p style={{ color: '#666', marginBottom: '20px' }}>
-                Paste your notes or upload a text file. This will be used to generate quiz questions during battles!
-              </p>
 
               {/* Text Area for pasting notes */}
               <textarea
                 value={learningMaterial}
                 onChange={(e) => setLearningMaterial(e.target.value)}
-                placeholder="Paste your study notes here... (e.g., 'The water cycle consists of evaporation, condensation, and precipitation...')"
+                placeholder="Paste your study notes here..."
                 style={{
-                  width: '100%',
-                  height: '200px',
+                  position: 'absolute',
+                  left: '523px',
+                  top: '250px',
+                  width: '425px',
+                  height: '127px',
                   padding: '12px',
                   borderRadius: '8px',
                   border: '2px solid #ddd',
                   fontSize: '14px',
                   resize: 'vertical',
-                  marginBottom: '16px',
-                  fontFamily: 'inherit'
+                  fontFamily: 'inherit',
+                  color: 'black',
+                  backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  zIndex: 10
                 }}
               />
 
               {/* File Upload */}
-              <div style={{ marginBottom: '20px' }}>
-                <input
-                  type="file"
-                  accept=".txt,.md"
-                  id="fileUpload"
-                  style={{ display: 'none' }}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (event) => {
-                        const content = event.target?.result as string;
-                        setLearningMaterial(prev => prev + (prev ? '\n\n' : '') + content);
-                      };
-                      reader.readAsText(file);
-                    }
+              <input
+                type="file"
+                accept=".txt,.md"
+                id="fileUpload"
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      const content = event.target?.result as string;
+                      setLearningMaterial(prev => prev + (prev ? '\n\n' : '') + content);
+                    };
+                    reader.readAsText(file);
+                  }
+                }}
+              />
+              <label
+                htmlFor="fileUpload"
+                style={{
+                  position: 'absolute',
+                  left: '653px',
+                  top: '385px',
+                  cursor: 'pointer'
+                }}
+              >
+                <img
+                  src={uploadTextButtonImg}
+                  alt="Upload Text File"
+                  style={{
+                    width: '200px',
+                    height: 'auto'
                   }}
                 />
-                <label
-                  htmlFor="fileUpload"
-                  style={{
-                    padding: '10px 20px',
-                    backgroundColor: '#eee',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    color: '#333'
-                  }}
-                >
-                  📁 Upload Text File
-                </label>
-              </div>
+              </label>
 
-              {/* Character count */}
-              <p style={{ color: '#999', fontSize: '12px', marginBottom: '16px' }}>
-                {learningMaterial.length} characters
-              </p>
+              
 
               {/* Age Level Selector */}
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{
-                  display: 'block',
-                  color: '#333',
-                  fontWeight: 'bold',
-                  marginBottom: '8px',
-                  fontSize: '14px'
-                }}>
-                  🎯 Question Difficulty Level
-                </label>
+              <div style={{
+                position: 'absolute',
+                left: '678px',
+                top: '545px',
+              }}>
                 <select
                   value={ageLevel}
                   onChange={(e) => setAgeLevel(e.target.value as AgeLevel)}
                   style={{
-                    padding: '10px 16px',
+                    padding: '4px 16px',
                     borderRadius: '8px',
                     border: '2px solid #ddd',
                     fontSize: '14px',
                     backgroundColor: 'white',
+                    color: 'black',
                     cursor: 'pointer',
-                    minWidth: '200px'
+                    maxWidth: '150px',
+                    maxHeight: '30px'
                   }}
                 >
                   {AGE_LEVELS.map(level => (
@@ -454,46 +509,66 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                     </option>
                   ))}
                 </select>
-                <p style={{ color: '#888', fontSize: '11px', marginTop: '6px' }}>
-                  Choose based on the learner's age for appropriate vocabulary
-                </p>
               </div>
 
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-                <button
-                  onClick={() => {
-                    handleClose(activeSprite);
-                    setLearningMaterial('');
-                  }}
+              {/* Close Button */}
+              <button
+                onClick={() => {
+                  handleClose(activeSprite);
+                  setLearningMaterial('');
+                }}
+                style={{
+                  position: 'absolute',
+                  top: '170px',
+                  right: '450px',
+                  width: '60px',
+                  height: 'auto',
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                  zIndex: 10
+                }}
+              >
+                <img
+                  src={exitButtonImg}
+                  alt="Close"
                   style={{
-                    padding: '10px 24px',
-                    backgroundColor: '#666',
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
                     color: 'white',
                     border: 'none',
                     borderRadius: '8px',
                     fontSize: '16px',
                     cursor: 'pointer'
                   }}
-                >
-                  Close
-                </button>
-                <button
+                />
+              </button>
+
+              <button
                   onClick={() => onEnterPortal?.({ ...answers, learningMaterial, ageLevel })}
                   disabled={!learningMaterial.trim()}
                   style={{
-                    padding: '12px 24px',
-                    backgroundColor: learningMaterial.trim() ? activeSprite.color : '#ccc',
-                    color: 'white',
+                    position: 'absolute',
+                    left: '653px',
+                    top: '560px',
+                    background: 'none',
                     border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '16px',
                     cursor: learningMaterial.trim() ? 'pointer' : 'not-allowed',
-                    fontWeight: 'bold'
+                    opacity: learningMaterial.trim() ? 1 : 0.5,
+                    padding: 0
                   }}
                 >
-                  Enter Portal 🚀
-                </button>
-              </div>
+                  <img
+                    src={enterPortalButtonImg}
+                    alt="Enter Portal"
+                    style={{
+                      width: '200px',
+                      height: 'auto'
+                    }}
+                />
+              </button>
             </div>
           </div>
         )}
@@ -506,7 +581,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
             onClose={() => handleClose(activeSprite)}
             placeholder="Type your answer or use the mic..."
             width={
-              activeSprite.id === 'character' ? '58%' :
+              activeSprite.id === 'character' ? '56%' :
               activeSprite.id === 'background' ? '63%' :
               activeSprite.id === 'music' ? '63%' :
               undefined
@@ -522,9 +597,10 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
             leftPaneContent={leftPaneContent}
             rightPaneContent={rightPaneContent}
             isLoading={modalStep === 'loading'}
+            submitLabel={modalStep === 'review' ? 'Confirm' : 'Submit'}
             inputAreaStyle={
               activeSprite.id === 'character' ? {
-                marginBottom: '138px', // Push up from bottom
+                marginBottom: '90px', // Push up from bottom
                 marginRight: '95px',  // Push in from right
                 width: '90%',         // Ensure it fits
                 maxWidth: '250px',    // Constrain width
@@ -532,7 +608,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
             } :
             activeSprite.id === 'background' ? {
               position: 'absolute',
-              top: '280px',
+              top: '285px',
               right: '225px',
               width: '85%',         // Ensure it fits
               maxWidth: '250px',    // Constrain width
@@ -585,7 +661,13 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
           />
         )}
 
-        {/* Checkmark Notification for Ready Characters */}
+        {isDrawing && (
+            <DrawingCanvas
+                onClose={() => setIsDrawing(false)}
+                onSubmit={handleDrawingSubmit}
+            />
+        )}
+
         {/* Checkmark Notification for Ready Characters */}
         {generatedSprites && !activeMenu && (
             <button

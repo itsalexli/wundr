@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { DictationButton } from './DictationTool';
-import submitButtonImg from '../assets/images/buttons/submitButton.png';
+import submitButtonImg from './submitButton.png';
 
 export interface PromptModalProps {
     /** The prompt/question to display */
@@ -23,6 +23,8 @@ export interface PromptModalProps {
     leftPaneContent?: React.ReactNode;
     /** Optional content to render in the right pane */
     rightPaneContent?: React.ReactNode;
+    /** Custom label for the submit button */
+    submitLabel?: string;
     /** Whether to show loading state */
     isLoading?: boolean;
     /** Whether to clear input on submit (default true) */
@@ -38,6 +40,8 @@ export interface PromptModalProps {
     hideInput?: boolean;
     /** Optional image for the close button */
     closeButtonImage?: string;
+    /** Optional callback when paint button is clicked */
+    onPaintClick?: () => void;
     /** Optional custom style for the close button */
     closeButtonStyle?: React.CSSProperties;
 }
@@ -53,14 +57,16 @@ export function PromptModal({
     onInputChange,
     leftPaneContent,
     rightPaneContent,
+    submitLabel = 'Submit',
     isLoading = false,
     clearOnSubmit = true,
     backgroundImage,
     inputAreaStyle,
     textareaStyle,
     closeButtonImage,
-    closeButtonStyle,
     hideInput = false,
+    onPaintClick,
+    closeButtonStyle,
 }: PromptModalProps) {
     const [answer, setAnswer] = useState('');
     const [answerBeforeDictation, setAnswerBeforeDictation] = useState('');
@@ -117,7 +123,7 @@ export function PromptModal({
         },
         closeButton: closeButtonImage ? {
             position: 'absolute',
-            top: '40px',
+            top: '60px',
             right: '70px',
             width: '60px',
             height: 'auto',
@@ -126,7 +132,7 @@ export function PromptModal({
             padding: 0,
             cursor: 'pointer',
             zIndex: 10,
-            ...closeButtonStyle, // Apply custom styles
+            ...closeButtonStyle,
         } : {
             position: 'absolute',
             top: '12px',
@@ -142,7 +148,6 @@ export function PromptModal({
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 10,
-            ...closeButtonStyle, // Apply custom styles
         },
         // Split Layout Styles
         splitContainer: {
@@ -198,13 +203,16 @@ export function PromptModal({
             resize: 'vertical' as const,
             ...textareaStyle, // Apply custom styles
         },
+        buttonContainer: {
+             display: 'none' // forcing removal of old container style usage if any remains
+        },
         submitButton: {
             border: 'none',
             background: 'none',
             cursor: isLoading ? 'wait' : 'pointer',
             marginTop: '16px',
             width: '100%',
-            height: '60px',
+            height: '140px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
@@ -214,24 +222,18 @@ export function PromptModal({
             alignItems: 'center',
             justifyContent: 'center',
             gap: '5px',
-            marginTop: '-13px'
+            marginTop: '-55px',
+            position: 'relative', 
         },
         dictationContainer: {
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
+            marginLeft: '8px'
         },
     };
 
     const renderContent = () => (
         <>
-            <style>
-                {`
-                    .prompt-modal-textarea:focus {
-                        outline: 2px solid #8B4513 !important;
-                        outline-offset: 2px;
-                    }
-                `}
-            </style>
             {/* Prompt Text */}
             <div style={styles.promptText}>{prompt}</div>
 
@@ -240,7 +242,6 @@ export function PromptModal({
                 {!hideInput && (
                     <div style={styles.inputContainer}>
                         <textarea
-                            className="prompt-modal-textarea"
                             style={styles.textarea}
                             value={answer}
                             onChange={handleInputChange}
@@ -267,18 +268,43 @@ export function PromptModal({
                         />
                     )}
                     </button>
-                    <div style={styles.dictationContainer}>
-                        <DictationButton
-                            onDictationStart={() => setAnswerBeforeDictation(answer)}
-                            onTranscriptChange={(text) => {
-                                const separator = answerBeforeDictation && !answerBeforeDictation.endsWith(' ') ? ' ' : '';
-                                const newVal = answerBeforeDictation + separator + text;
-                                setAnswer(newVal);
-                                onInputChange?.(newVal);
-                            }}
-                            size={48}
-                        />
-                    </div>
+                    {!hideInput && (
+                         <div style={styles.dictationContainer}>
+                            <DictationButton
+                                onDictationStart={() => setAnswerBeforeDictation(answer)}
+                                onTranscriptChange={(text) => {
+                                    const separator = answerBeforeDictation && !answerBeforeDictation.endsWith(' ') ? ' ' : '';
+                                    const newVal = answerBeforeDictation + separator + text;
+                                    setAnswer(newVal);
+                                    onInputChange?.(newVal);
+                                }}
+                                size={48}
+                            />
+                            {onPaintClick && (
+                                <button
+                                    style={{
+                                        width: '48px',
+                                        height: '48px',
+                                        borderRadius: '50%',
+                                        border: 'none',
+                                        backgroundColor: '#9c27b0',
+                                        color: 'white',
+                                        fontSize: '20px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                                        marginLeft: '8px'
+                                    }}
+                                    onClick={onPaintClick}
+                                    title="Draw your character"
+                                >
+                                    🖌️
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         </>
