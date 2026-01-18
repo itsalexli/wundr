@@ -493,7 +493,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
             onClose={() => handleClose(activeSprite)}
             placeholder="Type your answer or use the mic..."
             width={activeSprite.id === 'character' ? '60%' : undefined}
-            height={activeSprite.id === 'character' ? '60%' : undefined}
+            height={activeSprite.id === 'character' ? '80%' : undefined}
             layout={activeSprite.id === 'character' ? 'split' : 'default'}
             onInputChange={setCurrentInput}
             leftPaneContent={leftPaneContent}
