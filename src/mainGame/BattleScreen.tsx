@@ -239,18 +239,6 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
     setActiveSpell(spell);
   };
 
-  if (activeSpell) {
-    return (
-      <QuestionScreen
-        spellName={activeSpell}
-        learningMaterial={learningMaterial}
-        ageLevel={ageLevel}
-        preloadedQuestion={currentQuestion}
-        onClose={handleSpellComplete}
-      />
-    );
-  }
-
   return (
     <div style={{
       position: 'absolute',
@@ -550,6 +538,30 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
               {battleResult === 'win' ? 'Continue' : 'Try Again'}
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Question Screen Modal Overlay */}
+      {activeSpell && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 200
+        }}>
+          <QuestionScreen
+            spellName={activeSpell}
+            learningMaterial={learningMaterial}
+            ageLevel={ageLevel}
+            preloadedQuestion={currentQuestion}
+            onClose={handleSpellComplete}
+          />
         </div>
       )}
     </div>
