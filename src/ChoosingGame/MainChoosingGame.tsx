@@ -51,6 +51,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
   const [answers, setAnswers] = useState<UserAnswers>({})
   const [learningMaterial, setLearningMaterial] = useState('')
   const [ageLevel, setAgeLevel] = useState<AgeLevel>('6-7')
+  const [isGenerating, setIsGenerating] = useState(false)
   const keysPressed = useInputController()
 
   // Game Loop
@@ -164,7 +165,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
         // Nano Banana / Gemini Flow - BACKGROUND GENERATION
         // Close modal immediately and start generation
         handleClose(sprite);
-        // setIsGenerating(true); // TODO: Add state
+        setIsGenerating(true); 
         
         // Use a detached promise for background work
         fetch('/api/generate', {
@@ -194,7 +195,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
             alert('Something went wrong contacting Nano Banana!');
         })
         .finally(() => {
-            // setIsGenerating(false); 
+            setIsGenerating(false); 
         });
         
         return; 
@@ -503,6 +504,7 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
         )}
 
         {/* Checkmark Notification for Ready Characters */}
+        {/* Checkmark Notification for Ready Characters */}
         {generatedSprites && !activeMenu && (
             <button
                 onClick={() => {
@@ -520,22 +522,63 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                     transform: 'translateX(-50%)',
                     width: '60px',
                     height: '60px',
-                    borderRadius: '50%',
                     backgroundColor: '#4CAF50',
                     border: '4px solid white',
                     color: 'white',
                     fontSize: '32px',
+                    fontFamily: 'monospace', // Monospace for pixelated feel if font is missing
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+                    boxShadow: '4px 4px 0px rgba(0,0,0,0.5)', // Hard shadow for pixel feel
                     zIndex: 100,
+                    imageRendering: 'pixelated', // Hint to browser
+                    borderRadius: '0px', // Boxy for pixel look
                     animation: 'popIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55)'
                 }}
             >
                 ✓
             </button>
+        )}
+
+        {/* Loading Pixel Animation */}
+        {isGenerating && !activeMenu && (
+             <div style={{
+                position: 'absolute',
+                bottom: '40px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '40px',
+                height: '40px',
+                zIndex: 100
+             }}>
+                 {/* Main pixelated spinner/bouncer using simple CSS divs */}
+                 <div style={{
+                     width: '20px',
+                     height: '20px',
+                     backgroundColor: 'white',
+                     boxShadow: '4px 4px 0px rgba(0,0,0,0.5)',
+                     animation: 'spin 1s infinite steps(4)', // Steps for jerky pixel motion
+                     margin: 'auto'
+                 }} />
+                 <style>{`
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                 `}</style>
+                 <div style={{ 
+                     textAlign: 'center', 
+                     color: 'white', 
+                     fontFamily: 'monospace', 
+                     fontSize: '10px', 
+                     marginTop: '8px',
+                     textShadow: '2px 2px 0px #000'
+                 }}>
+                     GENERATING...
+                 </div>
+             </div>
         )}
 
 

@@ -1,0 +1,39 @@
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+  <!-- Head (Skin tone) -->
+  <rect x="11" y="4" width="10" height="10" fill="#F7C59F"/>
+  <!-- Neck -->
+  <rect x="14" y="14" width="4" height="1" fill="#F7C59F"/>
+  
+  <!-- Jersey (Red) -->
+  <rect x="10" y="15" width="12" height="6" fill="#D60000"/>
+  <!-- White trim/Neckline -->
+  <rect x="11" y="15" width="10" height="1" fill="#FFFFFF"/>
+  
+  <!-- Number 23 (Simplified) -->
+  <!-- 2 -->
+  <rect x="13" y="17" width="2" height="1" fill="#FFFFFF"/>
+  <rect x="15" y="17" width="1" height="3" fill="#FFFFFF"/>
+  <rect x="13" y="19" width="2" height="1" fill="#FFFFFF"/>
+  <rect x="13" y="20" width="1" height="1" fill="#FFFFFF"/>
+  <!-- 3 -->
+  <rect x="17" y="17" width="2" height="1" fill="#FFFFFF"/>
+  <rect x="19" y="18" width="1" height="1" fill="#FFFFFF"/>
+  <rect x="17" y="19" width="2" height="1" fill="#FFFFFF"/>
+  <rect x="19" y="20" width="1" height="1" fill="#FFFFFF"/>
+  <rect x="17" y="21" width="2" height="1" fill="#FFFFFF"/>
+
+  <!-- Arms (Skin tone) -->
+  <rect x="9" y="16" width="1" height="5" fill="#F7C59F"/>
+  <rect x="22" y="16" width="1" height="5" fill="#F7C59F"/>
+  
+  <!-- Shorts (Black) -->
+  <rect x="11" y="21" width="10" height="3" fill="#222222"/>
+  
+  <!-- Legs (Skin tone) -->
+  <rect x="13" y="24" width="2" height="4" fill="#F7C59F"/>
+  <rect x="17" y="24" width="2" height="4" fill="#F7C59F"/>
+  
+  <!-- Shoes (Black) -->
+  <rect x="12" y="28" width="4" height="2" fill="#222222"/>
+  <rect x="16" y="28" width="4" height="2" fill="#222222"/>
+</svg>

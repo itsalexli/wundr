@@ -1,0 +1,64 @@
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    <!-- Head and Neck (Back of head) -->
+    <g fill="#A0522D">
+        <!-- Neck -->
+        <rect x="15" y="10" width="2" height="2"/>
+        <!-- Head Shape -->
+        <rect x="11" y="4" width="10" height="7"/>
+        <rect x="10" y="5" width="12" height="5"/>
+        <rect x="9" y="6" width="14" height="3"/>
+    </g>
+    <!-- Hair/Top of Head -->
+    <g fill="#333333">
+        <rect x="12" y="3" width="8" height="1"/>
+        <rect x="11" y="4" width="10" height="1"/>
+    </g>
+
+    <!-- Jersey (Yellow/Gold #FFD700) -->
+    <g fill="#FFD700">
+        <rect x="11" y="12" width="10" height="9"/>
+        <rect x="10" y="13" width="12" height="7"/>
+    </g>
+    <!-- Jersey Trim/Neckline -->
+    <g fill="#800080">
+        <rect x="13" y="12" width="6" height="1"/>
+    </g>
+    
+    <!-- Arms (Skin tone) -->
+    <g fill="#A0522D">
+        <rect x="9" y="13" width="1" height="4"/>
+        <rect x="22" y="13" width="1" height="4"/>
+        <rect x="8" y="14" width="1" height="2"/>
+        <rect x="23" y="14" width="1" height="2"/>
+    </g>
+
+    <!-- Number 6 (Purple) -->
+    <g fill="#800080">
+        <rect x="14" y="15" width="1" height="3"/>
+        <rect x="15" y="14" width="3" height="1"/>
+        <rect x="14" y="18" width="3" height="1"/>
+        <rect x="17" y="15" width="1" height="3"/>
+        <rect x="16" y="19" width="1" height="1"/>
+    </g>
+
+    <!-- Shorts -->
+    <g fill="#800080">
+        <rect x="12" y="21" width="8" height="2"/>
+    </g>
+
+    <!-- Legs and Shoes -->
+    <g fill="#A0522D">
+        <rect x="13" y="23" width="2" height="5"/>
+        <rect x="17" y="23" width="2" height="5"/>
+    </g>
+    <g fill="#FFFFFF">
+        <!-- Socks -->
+        <rect x="13" y="28" width="2" height="1"/>
+        <rect x="17" y="28" width="2" height="1"/>
+    </g>
+    <g fill="#000000">
+        <!-- Shoes -->
+        <rect x="12" y="29" width="4" height="2"/>
+        <rect x="16" y="29" width="4" height="2"/>
+    </g>
+</svg>

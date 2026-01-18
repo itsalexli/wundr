@@ -1,0 +1,72 @@
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    <!-- Head and Neck (Profile Left) -->
+    <g fill="#A0522D">
+        <!-- Neck -->
+        <rect x="12" y="10" width="2" height="2"/>
+        <!-- Face/Head Shape -->
+        <rect x="10" y="4" width="9" height="7"/>
+        <rect x="9" y="5" width="10" height="5"/>
+        <!-- Chin/Nose protrusion -->
+        <rect x="8" y="7" width="1" height="2"/>
+    </g>
+    <!-- Hair/Top of Head -->
+    <g fill="#333333">
+        <rect x="11" y="3" width="7" height="1"/>
+        <rect x="10" y="4" width="9" height="1"/>
+    </g>
+    <!-- Facial Features (Cute eye) -->
+    <g fill="#000000">
+        <!-- Eye -->
+        <rect x="11" y="7" width="1" height="1"/>
+        <!-- Mouth (Simple dot) -->
+        <rect x="9" y="9" width="1" height="1"/>
+    </g>
+
+    <!-- Body (Left Profile) -->
+    <g fill="#FFD700">
+        <rect x="11" y="12" width="8" height="9"/>
+        <rect x="10" y="13" width="9" height="7"/>
+    </g>
+    <!-- Jersey Trim/Neckline -->
+    <g fill="#800080">
+        <rect x="12" y="12" width="5" height="1"/>
+    </g>
+
+    <!-- Arms and Hands (Skin tone) -->
+    <!-- Front arm holding ball -->
+    <g fill="#A0522D">
+        <rect x="9" y="14" width="2" height="3"/>
+        <rect x="8" y="15" width="1" height="1"/>
+        <!-- Hand -->
+        <rect x="10" y="20" width="2" height="2"/>
+    </g>
+
+    <!-- Basketball (Held mostly in front/side) -->
+    <g fill="#FF8C00">
+        <rect x="11" y="20" width="6" height="6"/>
+        <rect x="10" y="21" width="8" height="4"/>
+    </g>
+    
+    <!-- Shorts -->
+    <g fill="#800080">
+        <rect x="11" y="21" width="7" height="2"/>
+    </g>
+
+    <!-- Legs and Shoes (Shifted slightly) -->
+    <g fill="#A0522D">
+        <!-- Front leg -->
+        <rect x="12" y="23" width="2" height="5"/>
+        <!-- Back leg -->
+        <rect x="15" y="23" width="2" height="4"/>
+    </g>
+    <g fill="#FFFFFF">
+        <!-- Socks -->
+        <rect x="12" y="28" width="2" height="1"/>
+        <rect x="15" y="27" width="2" height="1"/>
+    </g>
+    <g fill="#000000">
+        <!-- Shoes -->
+        <rect x="11" y="29" width="3" height="2"/>
+        <rect x="14" y="28" width="4" height="2"/>
+    </g>
+</svg>
