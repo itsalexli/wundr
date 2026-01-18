@@ -1,0 +1,27 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Shell (Outline) -->
+  <rect x="9" y="15" width="14" height="12" fill="black"/>
+  <!-- Shell (Brown) -->
+  <rect x="10" y="16" width="12" height="10" fill="#8b4513"/>
+  <!-- Skin showing under shell -->
+  <rect x="11" y="17" width="10" height="8" fill="#50b040"/>
+  <!-- Head (Outline) -->
+  <rect x="9" y="3" width="14" height="13" fill="black"/>
+  <!-- Head (Skin) -->
+  <rect x="10" y="4" width="12" height="11" fill="#50b040"/>
+  <!-- Bandana (Red) -->
+  <rect x="9" y="7" width="14" height="3" fill="#d04040"/>
+  <!-- Bandana Tails -->
+  <rect x="7" y="7" width="2" height="2" fill="#d04040"/>
+  <rect x="23" y="7" width="2" height="2" fill="#d04040"/>
+  <rect x="6" y="8" width="1" height="1" fill="black"/>
+  <rect x="25" y="8" width="1" height="1" fill="black"/>
+  <!-- Eyes (White) -->
+  <rect x="12" y="8" width="3" height="3" fill="white"/>
+  <rect x="17" y="8" width="3" height="3" fill="white"/>
+  <!-- Pupils (Black) -->
+  <rect x="13" y="9" width="1" height="1" fill="black"/>
+  <rect x="18" y="9" width="1" height="1" fill="black"/>
+  <!-- Mouth/Snout Detail -->
+  <rect x="13" y="13" width="6" height="1" fill="black"/>
+</svg>

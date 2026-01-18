@@ -1,0 +1,43 @@
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+  <defs>
+    <style>
+      .g1{fill:#386738}.g2{fill:#689D68}.g3{fill:#98C498}.b{fill:#000000}
+    </style>
+  </defs>
+  
+  <!-- Stem -->
+  <rect x="15" y="4" width="2" height="1" class="g1"/>
+  <rect x="16" y="5" width="1" height="1" class="g2"/>
+  <rect x="15" y="5" width="1" height="1" class="g1"/>
+
+  <!-- Body Outline/Fill (10px wide core) -->
+  <rect x="12" y="6" width="8" height="1" class="g1"/>
+  <rect x="11" y="7" width="10" height="1" class="g1"/>
+  <rect x="10" y="8" width="12" height="1" class="g1"/>
+  <rect x="11" y="7" width="1" height="1" class="g2"/>
+  <rect x="20" y="7" width="1" height="1" class="g2"/>
+  <rect x="11" y="8" width="10" height="1" class="g2"/>
+  
+  <rect x="9" y="9" width="1" height="19" class="g1"/>
+  <rect x="22" y="9" width="1" height="19" class="g1"/>
+  <rect x="10" y="9" width="12" height="19" class="g2"/>
+  
+  <!-- Texture (G3) - Right side emphasis -->
+  <rect x="20" y="11" width="1" height="2" class="g3"/>
+  <rect x="21" y="15" width="1" height="1" class="g3"/>
+  <rect x="17" y="20" width="2" height="1" class="g3"/>
+  
+  <!-- Eye (Profile view) -->
+  <rect x="17" y="12" width="2" height="2" class="b"/>
+  
+  <!-- Mouth -->
+  <rect x="16" y="17" width="1" height="1" class="b"/>
+  
+  <!-- Bottom Curve -->
+  <rect x="10" y="28" width="12" height="1" class="g1"/>
+  <rect x="11" y="29" width="10" height="1" class="g1"/>
+  <rect x="12" y="30" width="8" height="1" class="g1"/>
+  <rect x="10" y="28" width="12" height="1" class="g2"/>
+  <rect x="11" y="29" width="10" height="1" class="g2"/>
+  <rect x="12" y="30" width="8" height="1" class="g2"/>
+</svg>

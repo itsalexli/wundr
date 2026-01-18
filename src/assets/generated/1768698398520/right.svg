@@ -1,0 +1,35 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Body/Shell Outline -->
+  <rect x="8" y="14" width="14" height="12" fill="black"/>
+  <!-- Shell Brown -->
+  <rect x="9" y="15" width="12" height="10" fill="#8b4513"/>
+  <!-- Legs/Feet Outline -->
+  <rect x="10" y="25" width="5" height="3" fill="black"/>
+  <rect x="16" y="25" width="5" height="3" fill="black"/>
+  <!-- Legs/Feet Skin -->
+  <rect x="11" y="26" width="3" height="2" fill="#50b040"/>
+  <rect x="17" y="26" width="3" height="2" fill="#50b040"/>
+
+  <!-- Head (Outline) -->
+  <rect x="15" y="7" width="10" height="10" fill="black"/>
+  <!-- Head (Skin) -->
+  <rect x="16" y="8" width="8" height="8" fill="#50b040"/>
+  
+  <!-- Snout/Jaw (protruding) -->
+  <rect x="23" y="13" width="3" height="3" fill="black"/>
+  <rect x="23" y="14" width="2" height="2" fill="#50b040"/>
+
+  <!-- Bandana -->
+  <rect x="16" y="10" width="8" height="2" fill="#d04040"/>
+  <!-- Bandana Tail -->
+  <rect x="14" y="10" width="2" height="3" fill="#d04040"/>
+  <rect x="13" y="11" width="1" height="1" fill="black"/>
+
+  <!-- Eye (one visible) -->
+  <rect x="19" y="10" width="3" height="3" fill="white"/>
+  <rect x="20" y="11" width="1" height="1" fill="black"/>
+  
+  <!-- Arm/Hand -->
+  <rect x="21" y="18" width="2" height="4" fill="black"/>
+  <rect x="21" y="19" width="1" height="3" fill="#50b040"/>
+</svg>

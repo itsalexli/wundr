@@ -10,6 +10,8 @@ import health25 from '../assets/images/healthbar/25.png'
 import health50 from '../assets/images/healthbar/50.png'
 import health75 from '../assets/images/healthbar/75.png'
 import health100 from '../assets/images/healthbar/100.png'
+import victoryImg from '../assets/images/victory.png'
+import defeatImg from '../assets/images/defeat.png'
 
 interface BattleScreenProps {
   enemy: StaticSprite;
@@ -20,6 +22,7 @@ interface BattleScreenProps {
   playerHP: number;
   setPlayerHP: React.Dispatch<React.SetStateAction<number>>;
   onUseItem: (item: string, index: number) => void;
+  playerImage?: string;
 }
 
 interface Projectile {
@@ -45,7 +48,8 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
   inventoryItems = [], 
   playerHP, 
   setPlayerHP, 
-  onUseItem 
+  onUseItem,
+  playerImage
 }) => {
   const [activeSpell, setActiveSpell] = useState<string | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
@@ -278,12 +282,25 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
             transition: 'filter 0.1s ease-in-out'
           }}>
             {/* Scaled up player sprite representation */}
-            <div style={{
-              width: SPRITE_SIZE * 2,
-              height: SPRITE_SIZE * 2,
-              backgroundColor: isPlayerHurt ? '#ffaaaa' : 'red', // Tint red when hurt
-              transition: 'background-color 0.1s ease-in-out'
-            }} />
+            {playerImage ? (
+              <div style={{
+                width: SPRITE_SIZE * 3, // Slightly larger for battle view
+                height: SPRITE_SIZE * 3,
+                backgroundImage: `url(${playerImage})`,
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
+                backgroundColor: isPlayerHurt ? '#ffaaaa' : 'transparent',
+                transition: 'background-color 0.1s ease-in-out'
+              }} />
+            ) : (
+              <div style={{
+                width: SPRITE_SIZE * 2,
+                height: SPRITE_SIZE * 2,
+                backgroundColor: isPlayerHurt ? '#ffaaaa' : 'red', // Tint red when hurt
+                transition: 'background-color 0.1s ease-in-out'
+              }} />
+            )}
           </div>
         </div>
 
@@ -436,25 +453,32 @@ export const BattleScreen: React.FC<BattleScreenProps> = ({
           alignItems: 'center'
         }}>
           <div style={{
-            backgroundColor: 'white',
-            padding: '40px',
-            borderRadius: '20px',
-            textAlign: 'center',
-            color: 'black'
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
           }}>
-            <h1 style={{ fontSize: '48px', marginBottom: '20px' }}>
-              {battleResult === 'win' ? 'VICTORY!' : 'DEFEAT...'}
-            </h1>
+            <img 
+              src={battleResult === 'win' ? victoryImg : defeatImg} 
+              alt={battleResult === 'win' ? 'VICTORY!' : 'DEFEAT...'}
+              style={{
+                maxWidth: '80vw',
+                maxHeight: '60vh',
+                objectFit: 'contain'
+              }}
+            />
             <button
               onClick={() => onClose(battleResult)}
               style={{
+                marginTop: '20px',
                 padding: '15px 30px',
                 fontSize: '24px',
                 backgroundColor: battleResult === 'win' ? '#4CAF50' : '#ff4444',
                 color: 'white',
                 border: 'none',
                 borderRadius: '10px',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.3)'
               }}
             >
               {battleResult === 'win' ? 'Continue' : 'Try Again'}

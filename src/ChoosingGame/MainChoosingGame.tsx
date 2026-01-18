@@ -60,6 +60,10 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
     let animationFrameId: number;
     const speed = 4; // pixels per frame
 
+
+
+    // Temporary storage for generated sprites before they are reviewed/accepted
+    // We keep them even if menu closes so we can show the checkmark
     const checkCollision = (xp: number, yp: number) => {
       for (const sprite of staticSprites) {
         const spriteSize = sprite.size || SPRITE_SIZE / 1.5;
@@ -73,7 +77,16 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
           setCurrentInput('') // Reset input when opening menu
           setModalStep('input')
           setSelectedCostume(hkDown) // Reset costume selection
-          setGeneratedSprites(null)
+          
+          // Only reset generated sprites if we are colliding with the character portal to start fresh,
+          // OR if we want that behavior. The user didn't specify resetting on re-entry, 
+          // but usually you want to start fresh if you enter the portal again.
+          // However, if we preserve it for the checkmark, we should be careful.
+          // Let's reset ONLY if we don't have a pending checkmark awaiting review.
+          // Actually, standard behavior: Entering portal = new attempt.
+          if (sprite.id === 'character') {
+             setGeneratedSprites(null)
+          }
         }
       }
     }
@@ -123,7 +136,8 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
     setCurrentInput('')
     setModalStep('input')
     setSelectedCostume(hkDown)
-    setGeneratedSprites(null)
+    // Do NOT clear generatedSprites here, so we can show the checkmark
+    
     // Nudge player away to prevent immediate re-collision
     setPosition(prev => ({
       x: prev.x < sprite.x ? prev.x - 10 : prev.x + 10,
@@ -135,11 +149,10 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
     // Special flow for character selection
     if (sprite.id === 'character') {
       if (modalStep === 'input') {
-        setModalStep('loading')
-        
-        const lowerAnswer = answer.toLowerCase();
         // Hello Kitty Flow
+        const lowerAnswer = answer.toLowerCase();
         if (lowerAnswer.includes('hello kitty') || lowerAnswer.includes('hellokitty') || lowerAnswer.includes('kitty')) {
+            setModalStep('loading')
             setTimeout(() => {
                 setModalStep('review')
                 setCharacterType('hellokitty')
@@ -148,15 +161,19 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
             return;
         }
 
-        // Nano Banana / Gemini Flow
-        try {
-            const response = await fetch('/api/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: answer })
-            });
-            const data = await response.json();
-
+        // Nano Banana / Gemini Flow - BACKGROUND GENERATION
+        // Close modal immediately and start generation
+        handleClose(sprite);
+        // setIsGenerating(true); // TODO: Add state
+        
+        // Use a detached promise for background work
+        fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: answer })
+        })
+        .then(res => res.json())
+        .then(data => {
             if (data.success && data.paths) {
                 setGeneratedSprites({
                     front: data.paths.front,
@@ -164,20 +181,23 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
                     left: data.paths.left,
                     right: data.paths.right
                 });
-                setCharacterType('custom');
-                setSelectedCostume(data.paths.front);
-                setModalStep('review');
+                // REMOVED: setCharacterType('custom'); -- Wait for confirmation!
+                 setSelectedCostume(data.paths.front);
+                // Ready for review! Checkmark will appear.
             } else {
                 console.error('Generation failed:', data.error);
                 alert('Failed to generate character. Try again!');
-                setModalStep('input');
             }
-        } catch (e) {
+        })
+        .catch(e => {
             console.error('API Error:', e);
             alert('Something went wrong contacting Nano Banana!');
-            setModalStep('input');
-        }
-        return; // Don't close yet
+        })
+        .finally(() => {
+            // setIsGenerating(false); 
+        });
+        
+        return; 
       }
       
       if (modalStep === 'loading') return // Ignore clicks during loading
@@ -198,7 +218,8 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
       const lowerAnswer = answer.toLowerCase();
       if (lowerAnswer.includes('hello kitty') || lowerAnswer.includes('hellokitty') || lowerAnswer.includes('kitty')) {
         setCharacterType('hellokitty');
-      } else if (generatedSprites) {
+      } else if (generatedSprites && (modalStep === 'review' || answers.generatedSprites)) {
+        // Only switch to custom if we are confirming review OR if we already have it saved
         setCharacterType('custom');
       } else {
         setCharacterType('default');
@@ -222,7 +243,8 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
   let costumes: string[] = [];
   if (isHelloKitty) {
       costumes = [hkDown, hkLeft, hkUp, hkRight];
-  } else if (characterType === 'custom') { // Check type directly for costumes list, transient state is enough for review
+  } else if (characterType === 'custom' || (modalStep === 'review' && generatedSprites)) { 
+      // Show custom sprites if confirmed OR if we are reviewing them
       const sprites = generatedSprites || answers.generatedSprites;
       if (sprites) {
         costumes = [sprites.front, sprites.left, sprites.back, sprites.right];
@@ -254,7 +276,9 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
   ) : undefined;
 
   // Resolve the sprite to use for the player in the lobby
-  const lobbySprite = characterType === 'custom' ? (generatedSprites || answers.generatedSprites) : null;
+  // CRITICAL FIX: Only use confirmed sprites (answers.generatedSprites) for the actual player
+  // prevent using the "preview" generatedSprites (which is for the modal only)
+  const lobbySprite = characterType === 'custom' ? answers.generatedSprites : null;
 
   return (
     <div style={{
@@ -476,6 +500,42 @@ function ChoosingGame({ onEnterPortal }: ChoosingGameProps) {
             submitLabel={modalStep === 'review' ? 'Confirm' : 'Submit'}
             clearOnSubmit={activeSprite.id !== 'character'}
           />
+        )}
+
+        {/* Checkmark Notification for Ready Characters */}
+        {generatedSprites && !activeMenu && (
+            <button
+                onClick={() => {
+                    const charSprite = staticSprites.find(s => s.id === 'character');
+                    if (charSprite) {
+                        setActiveMenu('character');
+                        setModalStep('review');
+                        setSelectedCostume(generatedSprites.front);
+                    }
+                }}
+                style={{
+                    position: 'absolute',
+                    bottom: '30px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '60px',
+                    height: '60px',
+                    borderRadius: '50%',
+                    backgroundColor: '#4CAF50',
+                    border: '4px solid white',
+                    color: 'white',
+                    fontSize: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+                    zIndex: 100,
+                    animation: 'popIn 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55)'
+                }}
+            >
+                ✓
+            </button>
         )}
 
 

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <rect x="0" y="0" width="32" height="32" fill="#F0F0F000"/>
+  <!-- Head Fill -->
+  <g fill="#FFDBAC">
+    <rect x="10" y="5" width="12" height="20"/>
+    <rect x="8" y="7" width="16" height="16"/>
+  </g>
+  <!-- Outline #333333 -->
+  <g fill="#333333">
+    <!-- Head Outline -->
+    <rect x="10" y="4" width="12" height="1"/>
+    <rect x="9" y="5" width="1" height="1"/>
+    <rect x="22" y="5" width="1" height="1"/>
+    <rect x="8" y="6" width="1" height="1"/>
+    <rect x="23" y="6" width="1" height="1"/>
+    <rect x="7" y="7" width="1" height="16"/>
+    <rect x="24" y="7" width="1" height="16"/>
+    <rect x="8" y="23" width="1" height="1"/>
+    <rect x="23" y="23" width="1" height="1"/>
+    <rect x="9" y="24" width="1" height="1"/>
+    <rect x="22" y="24" width="1" height="1"/>
+    <rect x="10" y="25" width="12" height="1"/>
+
+    <!-- Eyes (Simple dots) -->
+    <rect x="11" y="10" width="1" height="1"/>
+    <rect x="19" y="10" width="1" height="1"/>
+    
+    <!-- Big Nose (The defining feature) -->
+    <rect x="13" y="13" width="6" height="1"/>
+    <rect x="12" y="14" width="8" height="2"/>
+    <rect x="13" y="16" width="6" height="1"/>
+  </g>
+</svg>

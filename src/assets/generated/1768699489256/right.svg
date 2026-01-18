@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <rect x="0" y="0" width="32" height="32" fill="#F0F0F000"/>
+  <!-- Head Fill -->
+  <g fill="#FFDBAC">
+    <rect x="7" y="6" width="15" height="18"/>
+    <rect x="7" y="8" width="17" height="14"/>
+  </g>
+  <!-- Outline #333333 -->
+  <g fill="#333333">
+    <!-- Head Outline -->
+    <rect x="8" y="5" width="14" height="1"/>
+    <rect x="7" y="6" width="1" height="1"/>
+    <rect x="22" y="6" width="1" height="1"/>
+    <rect x="23" y="7" width="1" height="1"/>
+    <rect x="6" y="7" width="1" height="14"/>
+    <rect x="24" y="8" width="1" height="12"/>
+    <rect x="23" y="20" width="1" height="1"/>
+    <rect x="22" y="21" width="1" height="1"/>
+    <rect x="8" y="22" width="14" height="1"/>
+    <rect x="10" y="23" width="10" height="1"/>
+
+    <!-- Eye -->
+    <rect x="10" y="10" width="1" height="1"/>
+    
+    <!-- Big Nose sticking out to the right -->
+    <rect x="19" y="13" width="7" height="1"/>
+    <rect x="18" y="14" width="9" height="2"/>
+    <rect x="19" y="16" width="7" height="1"/>
+  </g>
+</svg>

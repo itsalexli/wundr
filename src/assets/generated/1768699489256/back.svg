@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <rect x="0" y="0" width="32" height="32" fill="#F0F0F000"/>
+  <!-- Head Fill -->
+  <g fill="#FFDBAC">
+    <rect x="10" y="7" width="12" height="18"/>
+    <rect x="8" y="9" width="16" height="14"/>
+  </g>
+  <!-- Hair/Back Detail (Brown hair color: #6B443B) -->
+  <g fill="#6B443B">
+    <rect x="8" y="4" width="16" height="3"/>
+    <rect x="10" y="7" width="12" height="2"/>
+  </g>
+  <!-- Outline #333333 -->
+  <g fill="#333333">
+    <!-- Outer Outline -->
+    <rect x="8" y="3" width="16" height="1"/>
+    <rect x="7" y="4" width="1" height="3"/>
+    <rect x="24" y="4" width="1" height="3"/>
+    <rect x="7" y="7" width="1" height="16"/>
+    <rect x="24" y="7" width="1" height="16"/>
+    <rect x="8" y="23" width="1" height="1"/>
+    <rect x="23" y="23" width="1" height="1"/>
+    <rect x="9" y="24" width="1" height="1"/>
+    <rect x="22" y="24" width="1" height="1"/>
+    <rect x="10" y="25" width="12" height="1"/>
+  </g>
+</svg>

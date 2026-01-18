@@ -3,7 +3,7 @@ import '../App.css'
 import { useInputController } from '../shared/useInputController'
 import { Sprite } from '../shared/Sprite'
 import { staticSprites as initialSprites, SPRITE_SIZE, PLAYER_SIZE, type StaticSprite } from './gameConfig'
-import type { UserAnswers } from '../ChoosingGame/MainChoosingGame'
+import type { UserAnswers } from '../choosingGame/MainChoosingGame'
 import { BattleScreen } from './BattleScreen'
 import { matchBackground, type BackgroundImage } from './backgroundMatcher'
 
@@ -283,6 +283,11 @@ function MainGame({ userAnswers, onBack }: MainGameProps) {
           playerHP={playerHP}
           setPlayerHP={setPlayerHP}
           onUseItem={handleUseItem}
+          playerImage={
+            userAnswers.generatedSprites
+              ? userAnswers.generatedSprites.right // Use right-facing sprite for battle
+              : hkRight // Use Hello Kitty right-facing by default
+          }
           onClose={(result) => {
             setActiveMenu(null)
             
