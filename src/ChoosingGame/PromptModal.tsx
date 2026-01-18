@@ -85,7 +85,7 @@ export function PromptModal({
             zIndex: 2000,
         },
         modal: {
-            backgroundColor: 'white',
+            backgroundColor: backgroundImage ? 'transparent' : 'white',
             borderRadius: '16px',
             padding: layout === 'split' ? '0' : '24px',
             maxWidth: width ? '90%' : '500px',
